@@ -1,0 +1,14 @@
+services:
+  app:
+    container_name: api
+    build: .
+    image: bms-app-backend
+    env_file: .env
+    ports:
+      - "${APP__PORT}:80"
+    networks:
+      - bms_net
+
+
+networks:
+  bms_net:
