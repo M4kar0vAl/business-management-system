@@ -58,3 +58,13 @@ instance/
 
 # Ruff stuff:
 .ruff_cache/
+
+# Tests
+tests
+
+# Docs
+README.md
+docs/
+
+# Other
+Makefile
