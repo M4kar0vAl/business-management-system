@@ -3,4 +3,7 @@ name = "bms-em"
 version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "fastapi[standard]>=0.135.1",
+    "pydantic>=2.12.5",
+]
