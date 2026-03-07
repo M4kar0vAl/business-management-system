@@ -1,5 +1,6 @@
 from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL as SQLA_URL
 
 
 class AppConfig(BaseModel):
@@ -14,10 +15,14 @@ class DatabaseConfig(BaseModel):
     NAME: str = "my_db"
 
     @property
-    def URL(self) -> str:
-        return (
-            f"postgresql+asyncpg://{self.USER}:{self.PASS.get_secret_value()}"
-            f"@{self.HOST}:{self.PORT}/{self.NAME}"
+    def URL(self) -> SQLA_URL:
+        return SQLA_URL.create(
+            drivername="postgresql+asyncpg",
+            database=self.NAME,
+            host=self.HOST,
+            port=self.PORT,
+            username=self.USER,
+            password=self.PASS.get_secret_value(),
         )
 
 
