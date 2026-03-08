@@ -9,7 +9,7 @@ class AppConfig(BaseModel):
 
 class DatabaseConfig(BaseModel):
     HOST: str = "localhost"
-    PORT: int = "5432"
+    PORT: int = 5432
     USER: str = "user"
     PASS: SecretStr = SecretStr("password")
     NAME: str = "my_db"
