@@ -8,22 +8,22 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "${APP__PORT}:80"
+      - "${BMS__APP__PORT}:80"
     networks:
       - bms_net
 
   db:
     container_name: db
-    hostname: ${DB__HOST}
+    hostname: ${BMS__DB__HOST}
     image: postgres:18
     environment:
-      POSTGRES_USER: ${DB__USER}
-      POSTGRES_PASSWORD: ${DB__PASS}
-      POSTGRES_DB: ${DB__NAME}
+      POSTGRES_USER: ${BMS__DB__USER}
+      POSTGRES_PASSWORD: ${BMS__DB__PASS}
+      POSTGRES_DB: ${BMS__DB__NAME}
     ports:
-      - "${DB__PORT}:5432"
+      - "${BMS__DB__PORT}:5432"
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${DB__USER} -d ${DB__NAME}" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${BMS__DB__USER} -d ${BMS__DB__NAME}" ]
       interval: 5s
       timeout: 10s
       retries: 3
