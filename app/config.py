@@ -1,6 +1,10 @@
+from pathlib import Path
+
 from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL as SQLA_URL
+
+BASE_DIR = Path(__file__).parent.parent
 
 
 class AppConfig(BaseModel):
@@ -28,7 +32,7 @@ class DatabaseConfig(BaseModel):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env", env_nested_delimiter="__", env_prefix="BMS__"
+        env_file=BASE_DIR / ".env", env_nested_delimiter="__", env_prefix="BMS__"
     )
 
     APP: AppConfig = AppConfig()
