@@ -1,6 +1,6 @@
 #!/bin/bash
 
 # Apply migrations
-alembic upgrade head
+alembic upgrade head || exit 1
 
 exec "$@"
