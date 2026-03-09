@@ -30,6 +30,10 @@ class DatabaseConfig(BaseModel):
         )
 
 
+class AccessTokenConfig(BaseModel):
+    LIFETIME_SECONDS: int = 604800  # 7 days
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env", env_nested_delimiter="__", env_prefix="BMS__"
@@ -37,6 +41,7 @@ class Settings(BaseSettings):
 
     APP: AppConfig = AppConfig()
     DB: DatabaseConfig = DatabaseConfig()
+    ACCESS_TOKEN: AccessTokenConfig = AccessTokenConfig()
 
 
 settings = Settings()
