@@ -40,5 +40,7 @@ WORKDIR /app
 
 EXPOSE 80
 
+ENTRYPOINT ["/app/entrypoint.sh"]
+
 # Run the FastAPI application by default
 CMD ["fastapi", "run", "--port", "80", "app/main.py"]
