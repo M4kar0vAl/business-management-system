@@ -30,8 +30,8 @@ class DatabaseConfig(BaseModel):
         )
 
 
-class AccessTokenConfig(BaseModel):
-    LIFETIME_SECONDS: int = 604800  # 7 days
+class AuthenticationConfig(BaseModel):
+    ACCESS_TOKEN_LIFETIME_SECONDS: int = 604800  # 7 days
     RESET_PASSWORD_TOKEN_SECRET: SecretStr = "secret"
     VERIFICATION_TOKEN_SECRET: SecretStr = "secret"
 
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
 
     APP: AppConfig = AppConfig()
     DB: DatabaseConfig = DatabaseConfig()
-    ACCESS_TOKEN: AccessTokenConfig = AccessTokenConfig()
+    AUTHENTICATION: AuthenticationConfig = AuthenticationConfig()
 
 
 settings = Settings()

@@ -8,8 +8,8 @@ from .types import UserIdType
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, UserIdType]):
     reset_password_token_secret = (
-        settings.ACCESS_TOKEN.RESET_PASSWORD_TOKEN_SECRET.get_secret_value()
+        settings.AUTHENTICATION.RESET_PASSWORD_TOKEN_SECRET.get_secret_value()
     )
     verification_token_secret = (
-        settings.ACCESS_TOKEN.VERIFICATION_TOKEN_SECRET.get_secret_value()
+        settings.AUTHENTICATION.VERIFICATION_TOKEN_SECRET.get_secret_value()
     )
