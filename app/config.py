@@ -1,3 +1,5 @@
+import re
+from functools import cached_property
 from pathlib import Path
 
 from pydantic import BaseModel, SecretStr
@@ -36,6 +38,28 @@ class AuthenticationConfig(BaseModel):
     VERIFICATION_TOKEN_SECRET: SecretStr = "secret"
 
 
+class PasswordConfig(BaseModel):
+    MIN_LENGTH: int = 8
+    LOWERCASE_MIN_NUMBER: int = 1
+    UPPERCASE_MIN_NUMBER: int = 1
+    DIGITS_MIN_NUMBER: int = 1
+    SPECIAL_CHARS_MIN_NUMBER: int = 1
+    ALLOWED_SPECIAL_CHARS: str = r"""!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
+
+    @cached_property
+    def REGEXP(self) -> re.Pattern:
+        return re.compile(
+            rf"^"
+            rf"(?=(.*[a-z]){{{self.LOWERCASE_MIN_NUMBER},}})"  # lowercase letters
+            rf"(?=(.*[A-Z]){{{self.UPPERCASE_MIN_NUMBER},}})"  # uppercase letters
+            rf"(?=(.*[0-9]){{{self.DIGITS_MIN_NUMBER},}})"  # digits
+            rf"(?=(.*[{re.escape(self.ALLOWED_SPECIAL_CHARS)}])"  # special characters
+            rf"{{{self.SPECIAL_CHARS_MIN_NUMBER},}})"  # min number of special characters
+            rf".{{{self.MIN_LENGTH},}}"  # min length
+            rf"$"
+        )
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env", env_nested_delimiter="__", env_prefix="BMS__"
@@ -44,6 +68,7 @@ class Settings(BaseSettings):
     APP: AppConfig = AppConfig()
     DB: DatabaseConfig = DatabaseConfig()
     AUTHENTICATION: AuthenticationConfig = AuthenticationConfig()
+    PASSWORD: PasswordConfig = PasswordConfig()
 
 
 settings = Settings()
