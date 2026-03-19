@@ -27,6 +27,9 @@ class User(IdIntPkMixin, SQLAlchemyBaseUserTable[UserIdType], Base):
     def get_db(cls, session: AsyncSession) -> SQLAlchemyUserDatabase:
         return SQLAlchemyUserDatabase(session, cls)
 
+    def __str__(self):
+        return f"User <{self.email}>"
+
 
 class AccessToken(SQLAlchemyBaseAccessTokenTable[UserIdType], Base):
     __tablename__ = "access_tokens"
@@ -40,3 +43,6 @@ class AccessToken(SQLAlchemyBaseAccessTokenTable[UserIdType], Base):
     @classmethod
     def get_db(cls, session: AsyncSession) -> SQLAlchemyAccessTokenDatabase:
         return SQLAlchemyAccessTokenDatabase(session, cls)
+
+    def __str__(self):
+        return f"AccessToken <{self.token}>"
