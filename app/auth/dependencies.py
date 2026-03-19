@@ -14,11 +14,11 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-def get_user_db(session: Annotated[AsyncSession, Depends(get_session)]):
+async def get_user_db(session: Annotated[AsyncSession, Depends(get_session)]):
     yield User.get_db(session)
 
 
-def get_access_token_db(session: Annotated[AsyncSession, Depends(get_session)]):
+async def get_access_token_db(session: Annotated[AsyncSession, Depends(get_session)]):
     yield AccessToken.get_db(session)
 
 
