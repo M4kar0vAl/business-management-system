@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class User(SQLAlchemyBaseUserTable[UserIdType], IdIntPkMixin, Base):
+class User(IdIntPkMixin, SQLAlchemyBaseUserTable[UserIdType], Base):
     __tablename__ = "users"
 
     is_manager: Mapped[bool] = mapped_column(default=False, server_default=false())
