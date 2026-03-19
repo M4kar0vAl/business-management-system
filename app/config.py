@@ -63,6 +63,7 @@ class PasswordConfig(BaseModel):
 class UserConfig(BaseModel):
     ADMIN_EMAIL: EmailStr = "admin@example.com"
     ADMIN_PASSWORD: SecretStr = "Pass!1234"
+    PASSWORD: PasswordConfig = PasswordConfig()
 
 
 class Settings(BaseSettings):
@@ -73,7 +74,6 @@ class Settings(BaseSettings):
     APP: AppConfig = AppConfig()
     DB: DatabaseConfig = DatabaseConfig()
     AUTHENTICATION: AuthenticationConfig = AuthenticationConfig()
-    PASSWORD: PasswordConfig = PasswordConfig()
     USER: UserConfig = UserConfig()
 
 

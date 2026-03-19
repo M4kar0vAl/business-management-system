@@ -23,15 +23,15 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, UserIdType]):
     async def validate_password(
         self, password: str, user: schemas.UC | models.UP
     ) -> None:
-        if not settings.PASSWORD.REGEXP.match(password):
+        if not settings.USER.PASSWORD.REGEXP.match(password):
             raise InvalidPasswordException(
                 reason=(
-                    f"Password should be at least {settings.PASSWORD.MIN_LENGTH} characters and "
-                    f"have at least {settings.PASSWORD.LOWERCASE_MIN_NUMBER} lowercase letters, "
-                    f"{settings.PASSWORD.UPPERCASE_MIN_NUMBER} uppercase letters, "
-                    f"{settings.PASSWORD.DIGITS_MIN_NUMBER} digits, "
-                    f"{settings.PASSWORD.SPECIAL_CHARS_MIN_NUMBER} special chars. "
-                    f"Special chars allowed: {settings.PASSWORD.ALLOWED_SPECIAL_CHARS}"
+                    f"Password should be at least {settings.USER.PASSWORD.MIN_LENGTH} characters and "
+                    f"have at least {settings.USER.PASSWORD.LOWERCASE_MIN_NUMBER} lowercase letters, "
+                    f"{settings.USER.PASSWORD.UPPERCASE_MIN_NUMBER} uppercase letters, "
+                    f"{settings.USER.PASSWORD.DIGITS_MIN_NUMBER} digits, "
+                    f"{settings.USER.PASSWORD.SPECIAL_CHARS_MIN_NUMBER} special chars. "
+                    f"Special chars allowed: {settings.USER.PASSWORD.ALLOWED_SPECIAL_CHARS}"
                 )
             )
 
