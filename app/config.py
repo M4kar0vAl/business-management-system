@@ -2,7 +2,7 @@ import re
 from functools import cached_property
 from pathlib import Path
 
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel, EmailStr, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL as SQLA_URL
 
@@ -60,6 +60,11 @@ class PasswordConfig(BaseModel):
         )
 
 
+class UserConfig(BaseModel):
+    ADMIN_EMAIL: EmailStr = "admin@example.com"
+    ADMIN_PASSWORD: SecretStr = "Pass!1234"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env", env_nested_delimiter="__", env_prefix="BMS__"
@@ -69,6 +74,7 @@ class Settings(BaseSettings):
     DB: DatabaseConfig = DatabaseConfig()
     AUTHENTICATION: AuthenticationConfig = AuthenticationConfig()
     PASSWORD: PasswordConfig = PasswordConfig()
+    USER: UserConfig = UserConfig()
 
 
 settings = Settings()
