@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from app.admin import register_admin_views
 from app.auth.actions import create_user
 from app.auth.routers import auth_router, users_router
 from app.config import settings
@@ -28,3 +29,5 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(users_router)
+
+register_admin_views(app)
