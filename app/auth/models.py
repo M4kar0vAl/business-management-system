@@ -1,3 +1,4 @@
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
@@ -5,7 +6,7 @@ from fastapi_users_db_sqlalchemy.access_token import (
     SQLAlchemyAccessTokenDatabase,
     SQLAlchemyBaseAccessTokenTable,
 )
-from sqlalchemy import ForeignKey, false
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auth.types import UserIdType
@@ -16,10 +17,16 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
 
+class Role(StrEnum):
+    USER = "user"
+    MANAGER = "manager"
+    ADMIN = "admin"
+
+
 class User(IdIntPkMixin, SQLAlchemyBaseUserTable[UserIdType], Base):
     __tablename__ = "users"
 
-    is_manager: Mapped[bool] = mapped_column(default=False, server_default=false())
+    role: Mapped[Role] = mapped_column(default=Role.USER, server_default=Role.USER.name)
 
     access_tokens: Mapped[list[AccessToken]] = relationship(back_populates="user")
 

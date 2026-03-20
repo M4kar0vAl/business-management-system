@@ -31,7 +31,7 @@ class UserAdmin(ModelView, model=User):
     column_list = (
         User.id,
         User.email,
-        User.is_manager,
+        User.role,
         User.is_superuser,
         User.is_active,
     )

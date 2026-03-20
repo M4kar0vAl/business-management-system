@@ -1,6 +1,7 @@
 from fastapi_users import schemas
 from fastapi_users.schemas import CreateUpdateDictModel
 
+from app.auth.models import Role
 from app.auth.types import UserIdType
 
 
@@ -16,18 +17,18 @@ class CustomCreateUpdateDictModel(CreateUpdateDictModel):
                 "is_verified",
                 "oauth_accounts",
                 # custom fields
-                "is_manager",
+                "role",
             },
         )
 
 
 class UserRead(CustomCreateUpdateDictModel, schemas.BaseUser[UserIdType]):
-    is_manager: bool = False
+    role: Role = Role.USER
 
 
 class UserCreate(CustomCreateUpdateDictModel, schemas.BaseUserCreate):
-    is_manager: bool | None = False
+    role: Role | None = Role.USER
 
 
 class UserUpdate(CustomCreateUpdateDictModel, schemas.BaseUserUpdate):
-    is_manager: bool | None = None
+    role: Role | None = None
