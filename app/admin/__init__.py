@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from sqladmin import Admin
 
 from app.auth import admin as auth_admin
+from app.auth.admin import views as auth_admin
 from app.database import Session
 
 
