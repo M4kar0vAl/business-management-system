@@ -109,5 +109,6 @@ class AdminAuth(AuthenticationBackend):
 
 
 admin_authentication_backend = AdminAuth(
-    Session, secret_key=settings.AUTHENTICATION.ADMIN_PANEL_SECRET_KEY.get_secret_value()
+    Session,
+    secret_key=settings.AUTHENTICATION.ADMIN_PANEL_SECRET_KEY.get_secret_value(),
 )
