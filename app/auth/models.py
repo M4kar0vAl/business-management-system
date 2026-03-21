@@ -34,7 +34,7 @@ class User(IdIntPkMixin, SQLAlchemyBaseUserTable[UserIdType], Base):
     )
 
     access_tokens: Mapped[list[AccessToken]] = relationship(back_populates="user")
-    team: Mapped[Team] = relationship(back_populates="users")
+    team: Mapped[Team | None] = relationship(back_populates="users")
 
     @classmethod
     def get_db(cls, session: AsyncSession) -> SQLAlchemyUserDatabase:
