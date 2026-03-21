@@ -1,11 +1,11 @@
 from contextlib import asynccontextmanager
 
-from app.database import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class UnitOfWork:
-    def __init__(self):
-        self.session = Session()
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
     async def commit(self):
         await self.session.commit()
@@ -21,8 +21,8 @@ class UnitOfWork:
 
 
 @asynccontextmanager
-async def unit_of_work():
-    uow = UnitOfWork()
+async def unit_of_work(session: AsyncSession):
+    uow = UnitOfWork(session)
     try:
         yield uow
         await uow.commit()
