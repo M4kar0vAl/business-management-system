@@ -16,6 +16,9 @@ class UnitOfWork:
     async def close(self):
         await self.session.close()
 
+    async def flush(self):
+        await self.session.flush()
+
 
 @asynccontextmanager
 async def unit_of_work():
