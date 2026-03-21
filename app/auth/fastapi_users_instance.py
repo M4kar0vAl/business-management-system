@@ -5,7 +5,7 @@ from .dependencies import get_user_manager
 from .models import User
 from .types import UserIdType
 
-fastapi_users = FastAPIUsers[User, UserIdType](
+fastapi_users_instance = FastAPIUsers[User, UserIdType](
     get_user_manager,
     [authentication_backend],
 )
