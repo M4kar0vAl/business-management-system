@@ -10,6 +10,7 @@ from app.config import settings
 from app.teams.exception_handlers import (
     register_exception_handlers as register_team_exception_handlers,
 )
+from app.teams.routers import router as teams_router
 
 log = logging.getLogger(__file__)
 
