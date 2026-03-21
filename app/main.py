@@ -33,6 +33,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(auth_router)
 app.include_router(users_router)
+app.include_router(teams_router)
 
 register_admin_views(app)
 
