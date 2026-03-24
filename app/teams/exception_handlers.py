@@ -5,6 +5,7 @@ from app.teams.exceptions import (
     TeamAlreadyExistsError,
     TeamDoesNotExistError,
     UserAlreadyInTeamError,
+    UserNotInTeamError,
 )
 
 
@@ -30,6 +31,12 @@ def register_exception_handlers(app: FastAPI):
     async def user_already_in_team_exception_handler(
         _: Request, exc: UserAlreadyInTeamError
     ):
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST, content={"detail": exc.message}
+        )
+
+    @app.exception_handler(UserNotInTeamError)
+    async def user_not_in_team_exception_handler(_: Request, exc: UserNotInTeamError):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST, content={"detail": exc.message}
         )
