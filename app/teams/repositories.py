@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth.models import User
+from app.auth.models import Role, User
 from app.teams.models import Team
 from app.teams.schemas import TeamCreate, TeamUpdate
 
@@ -113,3 +113,14 @@ class TeamRepository:
         stmt = select(User).where(User.team_id == team.id)
 
         return list(await self.session.scalars(stmt))
+
+    @classmethod
+    async def assign_user_role(cls, user: User, role: Role) -> None:
+        """
+        Assign a role to the user in a team
+
+        :param user: user to assign role to
+        :param role: role to assign
+        :return: None
+        """
+        user.role = role
