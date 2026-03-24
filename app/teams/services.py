@@ -5,10 +5,11 @@ from app.teams.exceptions import (
     TeamAlreadyExistsError,
     TeamDoesNotExistError,
     UserAlreadyInTeamError,
+    UserNotInTeamError,
 )
 from app.teams.models import Team
 from app.teams.repositories import TeamRepository
-from app.teams.schemas import TeamCreate
+from app.teams.schemas import AssignRole, TeamCreate
 from app.uow import UnitOfWork
 
 
@@ -94,3 +95,22 @@ class TeamService:
         user = await self.user_manager.get(user_id)
 
         await self.team_repo.remove_user_from_team(user)
+
+    async def assign_user_role(
+        self, user_id: UserIdType, assign_role: AssignRole
+    ) -> User:
+        """
+        Assign a role to a user in team
+
+        :param user_id: id of a user to assign role to
+        :param assign_role: role to assign
+        :return: User with updated role
+        """
+        user = await self.user_manager.get(user_id)
+
+        if not user.team_id:
+            raise UserNotInTeamError(user)
+
+        await self.team_repo.assign_user_role(user, assign_role.role)
+
+        return user
