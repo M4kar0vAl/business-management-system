@@ -5,8 +5,8 @@ __all__ = [
 from fastapi import FastAPI
 from sqladmin import Admin
 
-from app.auth.admin import views as auth_admin
-from app.auth.admin.authentication import admin_authentication_backend
+from app.auth.admin import admin_authentication_backend
+from app.auth.admin import register_admin_views as register_auth_admin_views
 from app.database import Session
 from app.teams.admin import register_admin_views as register_team_admin_views
 
@@ -17,8 +17,7 @@ def register_admin_views(app: FastAPI):
     )
 
     # auth
-    admin.add_view(auth_admin.AccessTokenAdmin)
-    admin.add_view(auth_admin.UserAdmin)
+    register_auth_admin_views(admin)
 
     # teams
     register_team_admin_views(admin)
