@@ -1,8 +1,21 @@
 from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
+from app.auth.models import Role
 from app.auth.schemas import UserRead
+
+
+class AssignRole(BaseModel):
+    role: Role
+
+    @field_validator("role", mode="after")
+    @classmethod
+    def validate_role(cls, v: Role):
+        if v == Role.ADMIN:
+            raise ValueError(f"Role {v!r} cannot be assigned")  # noqa: TRY003
+
+        return v
 
 
 class TeamBase(BaseModel):
