@@ -21,3 +21,6 @@ class Team(IdIntPkMixin, Base):
     description: Mapped[str] = mapped_column(String(512), default="", server_default="")
 
     users: Mapped[list[User]] = relationship(back_populates="team")
+
+    def __str__(self):
+        return f"Team <{self.name}>"
