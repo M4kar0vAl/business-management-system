@@ -4,7 +4,7 @@ from app.auth.fastapi_users_instance import current_active_user, get_current_adm
 from app.auth.types import UserIdType
 from app.dependencies import UOWDep
 from app.teams.dependencies import TeamServiceDep
-from app.teams.schemas import TeamCreate, TeamRead, TeamReadFull
+from app.teams.schemas import AssignRole, TeamCreate, TeamRead, TeamReadFull
 
 router = APIRouter(
     prefix="/teams", tags=["Teams"], dependencies=[Depends(current_active_user)]
@@ -73,3 +73,17 @@ async def remove_user_from_team(team_service: TeamServiceDep, user_id: UserIdTyp
     await team_service.remove_user_from_team(user_id)
 
     return {"detail": "User removed successfully"}
+
+
+@router.patch("/members/{user_id}", dependencies=[Depends(get_current_admin)])
+async def assign_user_role(
+    team_service: TeamServiceDep, user_id: UserIdType, assign_role: AssignRole
+):
+    """
+    Assign role to a user in team.
+
+    Role 'admin' is not assignable via this endpoint!
+
+    Only users with role admin or superusers can assign user roles.
+    """
+    return await team_service.assign_user_role(user_id, assign_role)
