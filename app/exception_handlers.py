@@ -21,3 +21,11 @@ def exception_handler_factory(
         return JSONResponse(status_code=status_code, content={"detail": message})
 
     return handler
+
+
+def register_exception_handlers(app: FastAPI):
+    from app.teams.exception_handlers import (
+        register_exception_handlers as register_team_exception_handlers,
+    )
+
+    register_team_exception_handlers(app)
