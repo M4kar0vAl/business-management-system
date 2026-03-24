@@ -2,7 +2,7 @@ import secrets
 from typing import Any
 
 from fastapi_users.password import PasswordHelper
-from sqladmin import ModelView
+from sqladmin import Admin, ModelView
 from starlette.requests import Request
 
 from app.admin.converter import ModelConverter
@@ -54,3 +54,8 @@ class UserAdmin(ModelView, model=User):
 
         if is_created or model.hashed_password != raw_password:
             data.update(hashed_password=password_helper.hash(raw_password))
+
+
+def register_admin_views(admin: Admin):
+    admin.add_view(AccessTokenAdmin)
+    admin.add_view(UserAdmin)
