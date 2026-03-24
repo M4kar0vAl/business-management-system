@@ -1,4 +1,6 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Annotated
+
+from fastapi import Depends
 
 from app.database import Session
 from app.uow import UnitOfWork, unit_of_work
@@ -15,6 +17,11 @@ async def get_session() -> AsyncGenerator[AsyncSession, Any]:
         yield session
 
 
-async def get_uow() -> AsyncGenerator[UnitOfWork, Any]:
-    async with unit_of_work() as uow:
+async def get_uow(
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> AsyncGenerator[UnitOfWork, Any]:
+    async with unit_of_work(session) as uow:
         yield uow
+
+
+UOWDep = Annotated[UnitOfWork, Depends(get_uow)]

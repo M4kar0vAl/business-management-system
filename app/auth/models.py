@@ -16,6 +16,8 @@ from app.models import Base
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
+    from app.teams.models import Team
+
 
 class Role(StrEnum):
     USER = "user"
@@ -27,8 +29,12 @@ class User(IdIntPkMixin, SQLAlchemyBaseUserTable[UserIdType], Base):
     __tablename__ = "users"
 
     role: Mapped[Role] = mapped_column(default=Role.USER, server_default=Role.USER.name)
+    team_id: Mapped[int | None] = mapped_column(
+        ForeignKey("teams.id", ondelete="set null"), default=None
+    )
 
     access_tokens: Mapped[list[AccessToken]] = relationship(back_populates="user")
+    team: Mapped[Team | None] = relationship(back_populates="users")
 
     @classmethod
     def get_db(cls, session: AsyncSession) -> SQLAlchemyUserDatabase:
