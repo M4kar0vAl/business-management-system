@@ -7,9 +7,7 @@ from app.admin import register_admin_views
 from app.auth.actions import create_user
 from app.auth.routers import auth_router, users_router
 from app.config import settings
-from app.teams.exception_handlers import (
-    register_exception_handlers as register_team_exception_handlers,
-)
+from app.exception_handlers import register_exception_handlers
 from app.teams.routers import router as teams_router
 
 log = logging.getLogger(__file__)
@@ -37,4 +35,4 @@ app.include_router(teams_router)
 
 register_admin_views(app)
 
-register_team_exception_handlers(app)
+register_exception_handlers(app)
