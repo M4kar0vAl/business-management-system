@@ -7,7 +7,7 @@ from .auth import AuthenticationConfig
 from .db import DatabaseConfig
 from .users import UserConfig
 
-BASE_DIR = Path(__file__).parent.parent
+BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class Settings(BaseSettings):
