@@ -56,10 +56,10 @@ async def engine(settings):
         admin_db_url, isolation_level="AUTOCOMMIT"
     ) as admin_engine:
         # drop db if it remained after previous tests
-        await drop_database(admin_engine, db_settings.NAME)
+        await drop_database(admin_engine, db_settings.URL)
 
         async with (
-            ensure_test_db(admin_engine, db_settings.NAME),  # create test db
+            ensure_test_db(admin_engine, db_settings.URL),  # create test db
             async_db_engine(
                 db_settings.URL
             ) as async_engine,  # create engine connected to tst db
