@@ -2,9 +2,12 @@ import logging
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import URL
+from sqlalchemy import URL, NullPool
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
+from app.auth.models import User
+from app.auth.schemas import UserCreate
+from app.auth.user_manager import UserManager
 from app.config import DatabaseConfig, Settings
 from app.config import settings as app_settings
 from app.dependencies import get_session
@@ -56,12 +59,13 @@ async def engine(settings):
         admin_db_url, isolation_level="AUTOCOMMIT"
     ) as admin_engine:
         # drop db if it remained after previous tests
-        await drop_database(admin_engine, db_settings.NAME)
+        await drop_database(admin_engine, db_settings.URL)
 
         async with (
-            ensure_test_db(admin_engine, db_settings.NAME),  # create test db
+            ensure_test_db(admin_engine, db_settings.URL),  # create test db
             async_db_engine(
-                db_settings.URL
+                db_settings.URL,
+                poolclass=NullPool,
             ) as async_engine,  # create engine connected to tst db
             ensure_db_schema(async_engine, Base.metadata),  # create tables
         ):
@@ -100,3 +104,28 @@ async def async_client(session):
         yield client
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def user_db(session):
+    return User.get_db(session)
+
+
+@pytest.fixture
+async def user_manager(user_db):
+    return UserManager(user_db)
+
+
+@pytest.fixture
+async def create_user(user_manager, authenticate_user):
+
+    async def _create_user(user: UserCreate, authenticate: bool = False):
+        db_user = await user_manager.create(user)
+        token = None
+
+        if authenticate:
+            db_user, token = await authenticate_user(user.email, user.password)
+
+        return db_user, token
+
+    return _create_user
