@@ -58,9 +58,12 @@ ignore = [
 ]
 
 
-[tool.pytest.ini_options]
+[tool.pytest]
 asyncio_mode = "auto"
-
+markers = [
+    "unit: unit tests",
+    "integration: integration tests"
+]
 
 [tool.coverage.run]
 branch = true

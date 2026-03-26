@@ -1,3 +1,4 @@
+import pytest
 from fastapi import status
 
 from app.auth.backend import authentication_backend
@@ -5,6 +6,7 @@ from app.auth.schemas import UserCreate
 from tests.mixins import GetUrlMixin
 
 
+@pytest.mark.integration
 class TestLogin(GetUrlMixin):
     url_name = f"auth:{authentication_backend.name}.login"
 

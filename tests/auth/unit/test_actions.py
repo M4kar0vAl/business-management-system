@@ -30,6 +30,7 @@ async def patch_get_async_session_context(monkeypatch, session):
 
 
 @pytest.mark.usefixtures("patch_get_async_session_context")
+@pytest.mark.unit
 class TestCreateUserAction:
     async def test_create_user(self):
         email = "user@example.com"

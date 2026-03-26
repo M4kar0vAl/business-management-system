@@ -1,9 +1,11 @@
+import pytest
 from fastapi import status
 
 from app.auth.schemas import UserCreate
 from tests.mixins import GetUrlMixin
 
 
+@pytest.mark.integration
 class TestGetCurrentUser(GetUrlMixin):
     url_name = "users:current_user"
 
