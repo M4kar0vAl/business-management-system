@@ -13,6 +13,7 @@ from app.config import settings as app_settings
 from app.dependencies import get_session
 from app.main import app
 from app.models import Base
+from app.uow import unit_of_work
 from tests.db_utils import (
     async_db_engine,
     drop_database,
@@ -104,6 +105,12 @@ async def async_client(session):
         yield client
 
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+async def uow(session):
+    async with unit_of_work(session) as _uow:
+        yield _uow
 
 
 @pytest.fixture
