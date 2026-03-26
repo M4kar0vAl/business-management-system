@@ -33,7 +33,9 @@ class User(IdIntPkMixin, SQLAlchemyBaseUserTable[UserIdType], Base):
         ForeignKey("teams.id", ondelete="set null"), default=None
     )
 
-    access_tokens: Mapped[list[AccessToken]] = relationship(back_populates="user")
+    access_tokens: Mapped[list[AccessToken]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
     team: Mapped[Team | None] = relationship(back_populates="users")
 
     @classmethod
