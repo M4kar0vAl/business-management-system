@@ -3,13 +3,13 @@ from fastapi_users.password import PasswordHelper
 
 from app.auth.models import Role
 from app.auth.schemas import UserCreate
-from app.main import app
+from tests.mixins import GetUrlMixin
 
 password_helper = PasswordHelper()
 
 
-class TestRegister:
-    url = app.url_path_for("register:register")
+class TestRegister(GetUrlMixin):
+    url_name = "register:register"
 
     async def test_register(self, async_client, user_db):
         email = "user@example.com"
@@ -19,7 +19,7 @@ class TestRegister:
         assert await user_db.get_by_email(email) is None
 
         response = await async_client.post(
-            self.url, json=UserCreate(email=email, password=password).model_dump()
+            self.get_url(), json=UserCreate(email=email, password=password).model_dump()
         )
 
         assert response.status_code == status.HTTP_201_CREATED
@@ -41,14 +41,18 @@ class TestRegister:
         user_create = UserCreate(email="user@example.com", password="Pass!234")
         await create_user(user_create)
 
-        response = await async_client.post(self.url, json=user_create.model_dump())
+        response = await async_client.post(
+            self.get_url(), json=user_create.model_dump()
+        )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     async def register_invalid_password(self, async_client):
         user_create = UserCreate(email="user@example.com", password="simple")
 
-        response = await async_client.post(self.url, json=user_create.model_dump())
+        response = await async_client.post(
+            self.get_url(), json=user_create.model_dump()
+        )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
@@ -63,7 +67,9 @@ class TestRegister:
             email="user@example.com", password="Pass!234", **unsafe_fields
         )
 
-        response = await async_client.post(self.url, json=user_create.model_dump())
+        response = await async_client.post(
+            self.get_url(), json=user_create.model_dump()
+        )
 
         assert response.status_code == status.HTTP_201_CREATED
 

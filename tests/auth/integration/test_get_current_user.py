@@ -1,11 +1,11 @@
 from fastapi import status
 
 from app.auth.schemas import UserCreate
-from app.main import app
+from tests.mixins import GetUrlMixin
 
 
-class TestGetCurrentUser:
-    url = app.url_path_for("users:current_user")
+class TestGetCurrentUser(GetUrlMixin):
+    url_name = "users:current_user"
 
     async def test_get_current_user(
         self, async_client, create_user, get_authorization_header
@@ -14,7 +14,7 @@ class TestGetCurrentUser:
         user, token = await create_user(user_create, authenticate=True)
 
         response = await async_client.get(
-            self.url, headers=get_authorization_header(token)
+            self.get_url(), headers=get_authorization_header(token)
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -25,7 +25,7 @@ class TestGetCurrentUser:
             assert getattr(user, field) == value
 
     async def test_get_current_user_unauthenticated(self, async_client):
-        response = await async_client.get(self.url)
+        response = await async_client.get(self.get_url())
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -38,7 +38,7 @@ class TestGetCurrentUser:
         _, token = await create_user(user_create, authenticate=True)
 
         response = await async_client.get(
-            self.url, headers=get_authorization_header(token)
+            self.get_url(), headers=get_authorization_header(token)
         )
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED

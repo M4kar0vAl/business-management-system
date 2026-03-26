@@ -2,11 +2,11 @@ from fastapi import status
 
 from app.auth.backend import authentication_backend
 from app.auth.schemas import UserCreate
-from app.main import app
+from tests.mixins import GetUrlMixin
 
 
-class TestLogout:
-    url = app.url_path_for(f"auth:{authentication_backend.name}.logout")
+class TestLogout(GetUrlMixin):
+    url_name = f"auth:{authentication_backend.name}.logout"
 
     async def test_logout(
         self, async_client, create_user, access_token_db, get_authorization_header
@@ -16,7 +16,7 @@ class TestLogout:
         )
 
         response = await async_client.post(
-            self.url, headers=get_authorization_header(token)
+            self.get_url(), headers=get_authorization_header(token)
         )
         assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -24,7 +24,7 @@ class TestLogout:
         assert token is None
 
     async def test_logout_unauthenticated(self, async_client):
-        response = await async_client.post(self.url)
+        response = await async_client.post(self.get_url())
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -37,7 +37,7 @@ class TestLogout:
         )
 
         response = await async_client.post(
-            self.url, headers=get_authorization_header(token)
+            self.get_url(), headers=get_authorization_header(token)
         )
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED

@@ -2,11 +2,11 @@ from fastapi import status
 
 from app.auth.backend import authentication_backend
 from app.auth.schemas import UserCreate
-from app.main import app
+from tests.mixins import GetUrlMixin
 
 
-class TestLogin:
-    url = app.url_path_for(f"auth:{authentication_backend.name}.login")
+class TestLogin(GetUrlMixin):
+    url_name = f"auth:{authentication_backend.name}.login"
 
     async def test_login(self, async_client, create_user, access_token_db):
         password = "Pass!234"
@@ -15,7 +15,7 @@ class TestLogin:
         )
 
         response = await async_client.post(
-            self.url, data={"username": user.email, "password": password}
+            self.get_url(), data={"username": user.email, "password": password}
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -35,7 +35,7 @@ class TestLogin:
         )
 
         response = await async_client.post(
-            self.url, data={"username": user.email, "password": password}
+            self.get_url(), data={"username": user.email, "password": password}
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -47,13 +47,14 @@ class TestLogin:
         )
 
         response = await async_client.post(
-            self.url, data={"username": user.email, "password": "Wr0ngP@ss"}
+            self.get_url(), data={"username": user.email, "password": "Wr0ngP@ss"}
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
         response = await async_client.post(
-            self.url, data={"username": "nonexistent@example.com", "password": password}
+            self.get_url(),
+            data={"username": "nonexistent@example.com", "password": password},
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
