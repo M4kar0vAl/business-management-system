@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auth.types import UserIdType
@@ -40,3 +40,20 @@ class Task(IdIntPkMixin, CreatedAtMixin, Base):
     author: Mapped[User | None] = relationship(back_populates="tasks_authored")
     assignee: Mapped[User | None] = relationship(back_populates="tasks_assigned")
     team: Mapped[Team] = relationship(back_populates="tasks")
+    comments: Mapped[list[Comment]] = relationship(
+        back_populates="task", cascade="all, delete-orphan"
+    )
+
+
+class Comment(IdIntPkMixin, CreatedAtMixin, Base):
+    __tablename__ = "comments"
+
+    text: Mapped[str] = mapped_column(Text(), default="", server_default="")
+
+    user_id: Mapped[UserIdType] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE")
+    )
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"))
+
+    user: Mapped[User] = relationship(back_populates="comments")
+    task: Mapped[Task] = relationship(back_populates="comments")
