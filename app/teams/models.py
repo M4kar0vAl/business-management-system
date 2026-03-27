@@ -12,6 +12,7 @@ from app.models import Base
 
 if TYPE_CHECKING:
     from app.auth.models import User
+    from app.tasks.models import Task
 
 
 class Team(IdIntPkMixin, Base):
@@ -21,6 +22,9 @@ class Team(IdIntPkMixin, Base):
     description: Mapped[str] = mapped_column(String(512), default="", server_default="")
 
     users: Mapped[list[User]] = relationship(back_populates="team")
+    tasks: Mapped[list[Task]] = relationship(
+        back_populates="team", cascade="all, delete-orphan"
+    )
 
     def __str__(self):
         return f"Team <{self.name}>"
