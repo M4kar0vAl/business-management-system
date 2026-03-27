@@ -37,8 +37,12 @@ class Task(IdIntPkMixin, CreatedAtMixin, Base):
     )
     team_id: Mapped[int] = mapped_column(ForeignKey("teams.id", ondelete="CASCADE"))
 
-    author: Mapped[User | None] = relationship(back_populates="tasks_authored")
-    assignee: Mapped[User | None] = relationship(back_populates="tasks_assigned")
+    author: Mapped[User | None] = relationship(
+        back_populates="tasks_authored", foreign_keys=author_id
+    )
+    assignee: Mapped[User | None] = relationship(
+        back_populates="tasks_assigned", foreign_keys=assignee_id
+    )
     team: Mapped[Team] = relationship(back_populates="tasks")
     comments: Mapped[list[Comment]] = relationship(
         back_populates="task", cascade="all, delete-orphan"
