@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
 from app.auth.fastapi_users_instance import current_active_user, get_current_admin
+from app.auth.schemas import UserRead
 from app.auth.types import UserIdType
 from app.dependencies import UOWDep
 from app.teams.dependencies import TeamServiceDep
@@ -96,6 +97,7 @@ async def remove_user_from_team(team_service: TeamServiceDep, user_id: UserIdTyp
     "/members/{user_id}",
     dependencies=[Depends(get_current_admin)],
     name=ASSIGN_USER_ROLE_ROUTE_NAME,
+    response_model=UserRead,
 )
 async def assign_user_role(
     team_service: TeamServiceDep, user_id: UserIdType, assign_role: AssignRole
