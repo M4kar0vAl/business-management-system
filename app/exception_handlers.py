@@ -1,6 +1,13 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.auth.exception_handlers import (
+    exception_status_mapping as auth_exception_status_mapping,
+)
+from app.teams.exception_handlers import (
+    exception_status_mapping as teams_exception_status_mapping,
+)
+
 
 def exception_handler_factory(
     app: FastAPI, exc_type: type[Exception], status_code: int
@@ -23,13 +30,26 @@ def exception_handler_factory(
     return handler
 
 
-def register_exception_handlers(app: FastAPI):
-    from app.auth.exception_handlers import (
-        register_exception_handlers as register_auth_exception_handlers,
-    )
-    from app.teams.exception_handlers import (
-        register_exception_handlers as register_team_exception_handlers,
-    )
+def register_exception_handlers_from_mapping(
+    app: FastAPI, exception_status_mapping: dict[type[Exception], int]
+) -> None:
+    """
+    Register exception handlers from {exception: status code} mapping.
 
-    register_auth_exception_handlers(app)
-    register_team_exception_handlers(app)
+    :param app: fastapi app to register exception handlers for
+    :param exception_status_mapping: a dictionary mapping exception class to http status code
+    :return: None
+    """
+    for exc_type, status_code in exception_status_mapping.items():
+        exception_handler_factory(app, exc_type, status_code)
+
+
+def register_exception_handlers(app: FastAPI) -> None:
+    """
+    Register exception handlers for fastapi app.
+
+    :param app: fastapi app to register exception handlers for
+    :return: None
+    """
+    register_exception_handlers_from_mapping(app, auth_exception_status_mapping)
+    register_exception_handlers_from_mapping(app, teams_exception_status_mapping)

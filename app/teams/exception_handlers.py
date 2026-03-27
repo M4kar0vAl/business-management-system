@@ -1,6 +1,5 @@
-from fastapi import FastAPI, status
+from fastapi import status
 
-from app.exception_handlers import exception_handler_factory
 from app.teams.exceptions import (
     TeamAlreadyExistsError,
     TeamDoesNotExistError,
@@ -14,8 +13,3 @@ exception_status_mapping = {
     UserAlreadyInTeamError: status.HTTP_400_BAD_REQUEST,
     UserNotInTeamError: status.HTTP_400_BAD_REQUEST,
 }
-
-
-def register_exception_handlers(app: FastAPI):
-    for exc_type, status_code in exception_status_mapping.items():
-        exception_handler_factory(app, exc_type, status_code)
