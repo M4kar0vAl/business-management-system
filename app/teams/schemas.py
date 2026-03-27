@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.auth.models import Role
 from app.auth.schemas import UserRead
@@ -24,6 +24,8 @@ class TeamBase(BaseModel):
 
 
 class TeamRead(TeamBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
 
 
