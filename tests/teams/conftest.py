@@ -19,6 +19,8 @@ async def team_service(uow, user_manager):
 async def create_team(team_service):
 
     async def _create_team(team_create: TeamCreate):
-        return await team_service.create_team(team_create)
+        team = await team_service.create_team(team_create)
+        await team_service.uow.flush()
+        return team
 
     return _create_team
