@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
 from app.auth.fastapi_users_instance import current_active_user, get_current_admin
+from app.auth.schemas import UserRead
 from app.auth.types import UserIdType
 from app.dependencies import UOWDep
 from app.teams.dependencies import TeamServiceDep
@@ -10,8 +11,16 @@ router = APIRouter(
     prefix="/teams", tags=["Teams"], dependencies=[Depends(current_active_user)]
 )
 
+ROUTE_NAME_PREFIX = "teams"
+GET_TEAMS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_teams"
+CREATE_TEAM_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:create_team"
+GET_TEAM_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_team"
+ADD_USER_TO_TEAM_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:add_user"
+REMOVE_USER_FROM_TEAM_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:remove_user"
+ASSIGN_USER_ROLE_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:assign_user_role"
 
-@router.get("/", response_model=list[TeamRead])
+
+@router.get("/", response_model=list[TeamRead], name=GET_TEAMS_ROUTE_NAME)
 async def get_teams(team_service: TeamServiceDep):
     """
     Get list of all teams.
@@ -26,6 +35,7 @@ async def get_teams(team_service: TeamServiceDep):
     response_model=TeamRead,
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(get_current_admin)],
+    name=CREATE_TEAM_ROUTE_NAME,
 )
 async def create_team(uow: UOWDep, team_service: TeamServiceDep, team: TeamCreate):
     """
@@ -39,7 +49,7 @@ async def create_team(uow: UOWDep, team_service: TeamServiceDep, team: TeamCreat
     return created_team
 
 
-@router.get("/{team_id}", response_model=TeamReadFull)
+@router.get("/{team_id}", response_model=TeamReadFull, name=GET_TEAM_ROUTE_NAME)
 async def get_team_by_id(team_service: TeamServiceDep, team_id: int):
     """
     Get team info by id.
@@ -49,7 +59,11 @@ async def get_team_by_id(team_service: TeamServiceDep, team_id: int):
     return await team_service.get_team_by_id(team_id)
 
 
-@router.post("/{team_id}/members/{user_id}", dependencies=[Depends(get_current_admin)])
+@router.post(
+    "/{team_id}/members/{user_id}",
+    dependencies=[Depends(get_current_admin)],
+    name=ADD_USER_TO_TEAM_ROUTE_NAME,
+)
 async def add_user_to_team(
     team_service: TeamServiceDep, team_id: int, user_id: UserIdType
 ):
@@ -63,7 +77,11 @@ async def add_user_to_team(
     return {"detail": "User added successfully"}
 
 
-@router.delete("/members/{user_id}", dependencies=[Depends(get_current_admin)])
+@router.delete(
+    "/members/{user_id}",
+    dependencies=[Depends(get_current_admin)],
+    name=REMOVE_USER_FROM_TEAM_ROUTE_NAME,
+)
 async def remove_user_from_team(team_service: TeamServiceDep, user_id: UserIdType):
     """
     Remove user from team.
@@ -75,7 +93,12 @@ async def remove_user_from_team(team_service: TeamServiceDep, user_id: UserIdTyp
     return {"detail": "User removed successfully"}
 
 
-@router.patch("/members/{user_id}", dependencies=[Depends(get_current_admin)])
+@router.patch(
+    "/members/{user_id}",
+    dependencies=[Depends(get_current_admin)],
+    name=ASSIGN_USER_ROLE_ROUTE_NAME,
+    response_model=UserRead,
+)
 async def assign_user_role(
     team_service: TeamServiceDep, user_id: UserIdType, assign_role: AssignRole
 ):
