@@ -24,8 +24,12 @@ def exception_handler_factory(
 
 
 def register_exception_handlers(app: FastAPI):
+    from app.auth.exception_handlers import (
+        register_exception_handlers as register_auth_exception_handlers,
+    )
     from app.teams.exception_handlers import (
         register_exception_handlers as register_team_exception_handlers,
     )
 
+    register_auth_exception_handlers(app)
     register_team_exception_handlers(app)
