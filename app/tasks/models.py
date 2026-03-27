@@ -48,6 +48,9 @@ class Task(IdIntPkMixin, CreatedAtMixin, Base):
         back_populates="task", cascade="all, delete-orphan"
     )
 
+    def __str__(self):
+        return f"Task {self.id} [{self.status}]"
+
 
 class Comment(IdIntPkMixin, CreatedAtMixin, Base):
     __tablename__ = "comments"
@@ -61,3 +64,6 @@ class Comment(IdIntPkMixin, CreatedAtMixin, Base):
 
     user: Mapped[User] = relationship(back_populates="comments")
     task: Mapped[Task] = relationship(back_populates="comments")
+
+    def __str__(self):
+        return f"Comment {self.id}"
