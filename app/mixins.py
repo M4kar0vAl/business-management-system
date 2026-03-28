@@ -10,5 +10,5 @@ class IdIntPkMixin:
 
 class CreatedAtMixin:
     created_at: Mapped[datetime] = mapped_column(
-        default_factory=lambda: datetime.now(UTC), server_default=func.now()
+        default=lambda: datetime.now(UTC), server_default=func.now()
     )
