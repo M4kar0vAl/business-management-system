@@ -31,3 +31,15 @@ class UserNotInTeamError(Exception):
         self.user = user
         self.message = f"User {self.user.email} is not a member of a team"
         super().__init__(self.message)
+
+
+class UserDoesNotBelongToTeamError(Exception):
+    """Raised when a user should belong to a specific team, but they are not"""
+
+    def __init__(self, user: User, team_id: int):
+        self.user = user
+        self.team_id = team_id
+        self.message = (
+            f"User {self.user.email} is not a member of a team with id {self.team_id}"
+        )
+        super().__init__(self.message)
