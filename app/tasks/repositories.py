@@ -52,11 +52,9 @@ class TaskRepository:
             Task,
             task_id,
             options=[
-                joinedload(
-                    Task.author,
-                    Task.assignee,
-                    Task.team,
-                ),
+                joinedload(Task.author),
+                joinedload(Task.assignee),
+                joinedload(Task.team),
                 selectinload(Task.comments).joinedload(Comment.user),
             ],
         )
