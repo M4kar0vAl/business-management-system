@@ -11,12 +11,13 @@ class TaskAdmin(ModelView, model=Task):
         Task.created_at,
         Task.deadline,
     )
-    form_excluded_columns = (Task.comments,)
+    form_excluded_columns = (Task.comments, Task.created_at)
     column_default_sort = (Task.created_at, True)
 
 
 class CommentAdmin(ModelView, model=Comment):
     column_list = (Comment.id, Comment.user, Comment.task, Comment.created_at)
+    form_excluded_columns = (Comment.created_at,)
     column_default_sort = (Comment.created_at, True)
 
 
