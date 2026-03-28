@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import DateTime, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auth.types import UserIdType
@@ -24,7 +24,7 @@ class Task(IdIntPkMixin, CreatedAtMixin, Base):
     __tablename__ = "tasks"
 
     description: Mapped[str]
-    deadline: Mapped[datetime]
+    deadline: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     status: Mapped[TaskStatus] = mapped_column(
         default=TaskStatus.OPEN, server_default=TaskStatus.OPEN.name
     )
