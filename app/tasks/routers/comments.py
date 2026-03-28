@@ -30,7 +30,9 @@ async def create_comment(
 
     Active users only.
     """
-    return await comment_service.create_comment(comment, user, task_id)
+    created_comment = await comment_service.create_comment(comment, user, task_id)
+    await comment_service.uow.flush()
+    return created_comment
 
 
 @router.patch(
@@ -54,7 +56,11 @@ async def update_comment(
 
     Active users only.
     """
-    return await comment_service.update_comment(comment_id, comment, user, task_id)
+    updated_comment = await comment_service.update_comment(
+        comment_id, comment, user, task_id
+    )
+    await comment_service.uow.flush()
+    return updated_comment
 
 
 @router.delete(
