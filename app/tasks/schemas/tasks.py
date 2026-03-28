@@ -40,8 +40,8 @@ class TaskRead(TaskReadBase):
 
 class TaskReadFull(TaskReadBase):
     team: TeamRead
-    author: UserRead
-    assignee: UserRead
+    author: UserRead | None
+    assignee: UserRead | None
     comments: list[CommentRead]
 
 
