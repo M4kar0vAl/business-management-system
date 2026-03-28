@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -19,7 +19,7 @@ class TaskCreate(TaskBase):
     @field_validator("deadline", mode="after")
     @classmethod
     def validate_deadline(cls, deadline: datetime):
-        if deadline <= datetime.now():
+        if deadline <= datetime.now(UTC):
             raise ValueError("Deadline must be in the future")  # noqa: TRY003
 
         return deadline
