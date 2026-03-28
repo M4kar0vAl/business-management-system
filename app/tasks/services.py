@@ -37,9 +37,7 @@ class TaskService:
         :raises UserDoesNotBelongToTeamError: if author is not a member of a team with id `team_id`
         :raises TeamDoesNotExistError: if the team does not exist
         """
-        if author.team_id != team_id:
-            raise UserDoesNotBelongToTeamError(author, team_id)
-
+        self._check_user_belongs_to_team(author, team_id)
         team = await self.team_repo.get_by_id(team_id)
 
         if not team:
@@ -47,18 +45,22 @@ class TaskService:
 
         return await self.task_repo.create(task, author=author, team=team)
 
-    async def get_task_by_id(self, task_id: int) -> Task:
+    async def get_task_by_id(self, task_id: int, user: User) -> Task:
         """
         Get task by id.
 
         :param task_id: id of a task to get
+        :param user: user who is retrieving the task
         :return: Task instance
         :raises TaskDoesNotExistError: if Task with the given id does not exist
+        :raises UserDoesNotBelongToTeamError: if user is not a member of a team where the task is created
         """
         task = await self.task_repo.get_by_id_full(task_id)
 
         if not task:
             raise TaskDoesNotExistError(task_id)
+
+        self._check_user_belongs_to_team(user, task.team_id)
 
         return task
 
@@ -80,48 +82,62 @@ class TaskService:
         """
         return await self.task_repo.get_tasks_created_by_user(user)
 
-    async def assign_user_to_task(self, task_id: int, assignee_id: UserIdType) -> None:
+    async def assign_user_to_task(
+        self, task_id: int, assignee_id: UserIdType, assigner: User
+    ) -> None:
         """
         Assign user to task.
 
         :param task_id: id of a task to assign user to
         :param assignee_id: id of user to assign to the task
+        :param assigner: user who is assigning assignee to the task
         :return: None
         :raises TaskDoesNotExistError: if Task with the given id does not exist
         :raises TaskAlreadyAssignedError: if the task is already assigned to another user
         :raises UserNotExists: if the user with the given id does not exist
+        :raises UserDoesNotBelongToTeamError: if assigner or assignee is not a member of a team where the task is created
         """
         task = await self._get_task_by_id(task_id)
+        self._check_user_belongs_to_team(assigner, task.team_id)
 
         if task.assignee_id is not None:
             raise TaskAlreadyAssignedError(task)
 
         assignee = await self.user_manager.get(assignee_id)
+        self._check_user_belongs_to_team(assignee, task.team_id)
 
         await self.task_repo.assign_user_to_task(task, assignee)
 
-    async def update_task(self, task_id: int, update_data: TaskUpdate) -> Task:
+    async def update_task(
+        self, task_id: int, update_data: TaskUpdate, user: User
+    ) -> Task:
         """
         Update a task.
 
         :param task_id: id of a task to update
         :param update_data: data to update the task with
+        :param user: user who is updating the task
         :return: Task instance
         :raises TaskDoesNotExistError: if Task with the given id does not exist
+        :raises UserDoesNotBelongToTeamError: if user is not a member of a team where the task is created
         """
         task = await self._get_task_by_id(task_id)
+        self._check_user_belongs_to_team(user, task.team_id)
 
         return await self.task_repo.update(task, update_data)
 
-    async def delete_task(self, task_id: int) -> None:
+    async def delete_task(self, task_id: int, user: User) -> None:
         """
         Delete a task.
 
         :param task_id: id of a task to delete
+        :param user: user who is deleting task
         :return: None
         :raises TaskDoesNotExistError: if Task with the given id does not exist
+        :raises UserDoesNotBelongToTeamError: if user is not a member of a team where the task is created
         """
         task = await self._get_task_by_id(task_id)
+        self._check_user_belongs_to_team(user, task.team_id)
 
         await self.task_repo.delete(task)
 
@@ -132,6 +148,11 @@ class TaskService:
             raise TaskDoesNotExistError(task_id)
 
         return task
+
+    @classmethod
+    def _check_user_belongs_to_team(cls, user: User, team_id: int) -> None:
+        if user.team_id != team_id:
+            raise UserDoesNotBelongToTeamError(user, team_id)
 
 
 class CommentService:
