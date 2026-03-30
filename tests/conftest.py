@@ -15,6 +15,9 @@ from app.config import settings as app_settings
 from app.dependencies import get_session
 from app.main import app
 from app.models import Base
+from app.teams.repositories import TeamRepository
+from app.teams.schemas import TeamCreate
+from app.teams.services import TeamService
 from app.uow import unit_of_work
 from tests.db_utils import (
     async_db_engine,
@@ -171,3 +174,29 @@ def get_authorization_header():
         }
 
     return _get_authorization_header
+
+
+@pytest.fixture
+async def team_repository(session):
+    return TeamRepository(session)
+
+
+@pytest.fixture
+async def team_service(uow, user_manager):
+    return TeamService(uow, user_manager)
+
+
+@pytest.fixture
+async def create_team(team_service, team_repository):
+
+    async def _create_team(team_create: TeamCreate, members: list[User] | None = None):
+        team = await team_service.create_team(team_create)
+        members = members or []
+
+        for member in members:
+            await team_repository.assign_user_to_team(team, member)
+
+        await team_service.uow.flush()
+        return team
+
+    return _create_team
