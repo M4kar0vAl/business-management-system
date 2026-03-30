@@ -26,22 +26,21 @@ class TaskService:
         self.team_repo = TeamRepository(uow.session)
         self.user_manager = user_manager
 
-    async def create_task(self, task: TaskCreate, team_id: int, author: User) -> Task:
+    async def create_task(self, task: TaskCreate, author: User) -> Task:
         """
         Create a new task.
 
         :param task: data to create task with
-        :param team_id: id of a team to create task for
         :param author: user who is creating the task
         :return: Task instance
         :raises UserDoesNotBelongToTeamError: if author is not a member of a team with id `team_id`
         :raises TeamDoesNotExistError: if the team does not exist
         """
-        self._check_user_belongs_to_team(author, team_id)
-        team = await self.team_repo.get_by_id(team_id)
+        self._check_user_belongs_to_team(author, task.team_id)
+        team = await self.team_repo.get_by_id(task.team_id)
 
         if not team:
-            raise TeamDoesNotExistError(team_id)
+            raise TeamDoesNotExistError(task.team_id)
 
         return await self.task_repo.create(task, author=author, team=team)
 

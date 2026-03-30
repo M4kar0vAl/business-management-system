@@ -22,9 +22,8 @@ DELETE_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
 ASSIGN_USER_TO_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:assign_user"
 
 
-# TODO move this one to teams router probably
 @router.post(
-    "/teams/{team_id}",
+    "/",
     status_code=status.HTTP_201_CREATED,
     response_model=TaskRead,
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
@@ -32,7 +31,6 @@ ASSIGN_USER_TO_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:assign_user"
 )
 async def create_task(
     task: TaskCreate,
-    team_id: int,
     author: Annotated[User, Depends(get_current_manager)],
     task_service: TaskServiceDep,
 ):
@@ -46,7 +44,7 @@ async def create_task(
 
     Active manager or admin only.
     """
-    created_task = await task_service.create_task(task, team_id, author)
+    created_task = await task_service.create_task(task, author)
     await task_service.uow.flush()
     return created_task
 

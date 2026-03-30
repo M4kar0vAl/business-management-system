@@ -16,6 +16,8 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
+    team_id: Annotated[int, Field(ge=1)]
+
     @field_validator("deadline", mode="after")
     @classmethod
     def validate_deadline(cls, deadline: datetime):
