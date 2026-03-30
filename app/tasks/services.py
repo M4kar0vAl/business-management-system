@@ -7,6 +7,7 @@ from app.tasks.exceptions import (
     CommentDoesNotExistError,
     TaskAlreadyAssignedError,
     TaskDoesNotExistError,
+    UserIsNotTaskAssigneeError,
 )
 from app.tasks.repositories import CommentRepository, TaskRepository
 from app.tasks.schemas import CommentCreate, CommentUpdate, TaskCreate, TaskUpdate
@@ -16,7 +17,7 @@ from app.uow import UnitOfWork
 
 if TYPE_CHECKING:
     from app.auth.models import User
-    from app.tasks.models import Comment, Task
+    from app.tasks.models import Comment, Task, TaskStatus
 
 
 class TaskService:
@@ -139,6 +140,28 @@ class TaskService:
         self._check_user_belongs_to_team(user, task.team_id)
 
         await self.task_repo.delete(task)
+
+    async def update_task_status(
+        self, task_id: int, status: TaskStatus, user: User
+    ) -> Task:
+        """
+        Update task status.
+
+        :param task_id: id of a task to update
+        :param status: status to update to
+        :param user: user performing the update
+        :return: updated task
+        :raises TaskDoesNotExistError: if Task with the given id does not exist
+        :raises UserDoesNotBelongToTeamError: if user is not a member of a team where the task is created
+        :raises UserIsNotTaskAssigneeError: if user is not assigned to the task
+        """
+        task = await self._get_task_by_id(task_id)
+        self._check_user_belongs_to_team(user, task.team_id)
+
+        if not task.assignee_id == user.id:
+            raise UserIsNotTaskAssigneeError(task, user.id)
+
+        return await self.task_repo.update(task, TaskUpdate(status=status))
 
     async def _get_task_by_id(self, task_id: int) -> Task:
         task = await self.task_repo.get_by_id(task_id)
