@@ -37,11 +37,12 @@ class TaskService:
         :raises UserDoesNotBelongToTeamError: if author is not a member of a team with id `team_id`
         :raises TeamDoesNotExistError: if the team does not exist
         """
-        self._check_user_belongs_to_team(author, task.team_id)
         team = await self.team_repo.get_by_id(task.team_id)
 
         if not team:
             raise TeamDoesNotExistError(task.team_id)
+
+        self._check_user_belongs_to_team(author, task.team_id)
 
         return await self.task_repo.create(task, author=author, team=team)
 
