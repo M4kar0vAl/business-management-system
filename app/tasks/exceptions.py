@@ -24,6 +24,20 @@ class TaskAlreadyAssignedError(Exception):
         super().__init__(self.message)
 
 
+class UserIsNotTaskAssigneeError(Exception):
+    """
+    Raised when a user is not assigned to the specific task, but they should be.
+    """
+
+    def __init__(self, task: Task, user_id: UserIdType):
+        self.task = task
+        self.user_id = user_id
+        self.message = (
+            f"Task {self.task} is not assigned to user with id {self.user_id}"
+        )
+        super().__init__(self.message)
+
+
 class CommentDoesNotExistError(Exception):
     """
     Raised when a comment with a given id does not exist.
