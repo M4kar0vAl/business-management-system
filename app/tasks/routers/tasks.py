@@ -1,12 +1,13 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Body, Depends, status
 
 from app import responses
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
 from app.auth.types import UserIdType
 from app.tasks.dependencies import TaskServiceDep
+from app.tasks.models import TaskStatus
 from app.tasks.schemas import TaskCreate, TaskRead
 from app.tasks.schemas.tasks import TaskReadFull, TaskUpdate
 
@@ -20,6 +21,7 @@ GET_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:retrieve"
 UPDATE_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:update"
 DELETE_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
 ASSIGN_USER_TO_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:assign_user"
+UPDATE_TASK_STATUS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:update_status"
 
 
 @router.post(
@@ -174,3 +176,28 @@ async def assign_user_to_task(
     await task_service.assign_user_to_task(task_id, assignee_id, assigner)
 
     return {"detail": "User assigned to the task successfully"}
+
+
+@router.patch(
+    "/{task_id}/status",
+    response_model=TaskRead,
+    responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=UPDATE_TASK_STATUS_ROUTE_NAME,
+)
+async def update_task_status(
+    task_id: int,
+    task_status: Annotated[TaskStatus, Body(embed=True)],
+    user: Annotated[User, Depends(current_active_user)],
+    task_service: TaskServiceDep,
+):
+    """
+    Update status of a task.
+
+    In order to update a task:
+    - current user must be a member of a team where the task is created
+    - task with id `task_id` must exist
+    - user must be assigned to the task
+
+    Active users only.
+    """
+    return await task_service.update_task_status(task_id, task_status, user)
