@@ -10,12 +10,18 @@ from app.tasks.schemas import CommentCreate, CommentRead, CommentUpdate
 
 router = APIRouter(prefix="/{task_id}/comments", tags=["Comments"])
 
+ROUTE_NAME_PREFIX = "tasks_comments"
+CREATE_COMMENT_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:create"
+UPDATE_COMMENT_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:update"
+DELETE_COMMENT_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
+
 
 @router.post(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=CommentRead,
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=CREATE_COMMENT_ROUTE_NAME,
 )
 async def create_comment(
     comment: CommentCreate,
@@ -39,6 +45,7 @@ async def create_comment(
     "/{comment_id}",
     response_model=CommentRead,
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=UPDATE_COMMENT_ROUTE_NAME,
 )
 async def update_comment(
     comment_id: int,
@@ -67,6 +74,7 @@ async def update_comment(
     "/{comment_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=DELETE_COMMENT_ROUTE_NAME,
 )
 async def delete_comment(
     comment_id: int,
