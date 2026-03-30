@@ -48,16 +48,17 @@ class TaskRepository:
         :param task_id: id of task to get
         :return: Task instance or None if it was not found
         """
-        return await self.session.get(
-            Task,
-            task_id,
-            options=[
+        stmt = (
+            select(Task)
+            .where(Task.id == task_id)
+            .options(
                 joinedload(Task.author),
                 joinedload(Task.assignee),
                 joinedload(Task.team),
                 selectinload(Task.comments).joinedload(Comment.user),
-            ],
+            )
         )
+        return (await self.session.scalars(stmt)).one_or_none()
 
     async def get_tasks_assigned_to_user(self, user: User) -> list[Task]:
         """
