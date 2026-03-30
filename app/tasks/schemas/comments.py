@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.auth.schemas import UserRead
 
@@ -15,6 +15,8 @@ class CommentCreate(CommentBase):
 
 
 class CommentRead(CommentBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
 
