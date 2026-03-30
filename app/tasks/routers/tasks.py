@@ -12,6 +12,15 @@ from app.tasks.schemas.tasks import TaskReadFull, TaskUpdate
 
 router = APIRouter()
 
+ROUTE_NAME_PREFIX = "tasks"
+TASK_CREATE_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:create"
+GET_ASSIGNED_TASKS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_assigned"
+GET_CREATED_TASKS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_created"
+GET_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:retrieve"
+UPDATE_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:update"
+DELETE_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
+ASSIGN_USER_TO_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:assign_user"
+
 
 # TODO move this one to teams router probably
 @router.post(
@@ -19,6 +28,7 @@ router = APIRouter()
     status_code=status.HTTP_201_CREATED,
     response_model=TaskRead,
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=TASK_CREATE_ROUTE_NAME,
 )
 async def create_task(
     task: TaskCreate,
@@ -41,7 +51,9 @@ async def create_task(
     return created_task
 
 
-@router.get("/assigned", response_model=list[TaskRead])
+@router.get(
+    "/assigned", response_model=list[TaskRead], name=GET_ASSIGNED_TASKS_ROUTE_NAME
+)
 async def get_tasks_assigned(
     user: Annotated[User, Depends(current_active_user)], task_service: TaskServiceDep
 ):
@@ -53,7 +65,9 @@ async def get_tasks_assigned(
     return await task_service.get_tasks_assigned_to_user(user)
 
 
-@router.get("/created", response_model=list[TaskRead])
+@router.get(
+    "/created", response_model=list[TaskRead], name=GET_CREATED_TASKS_ROUTE_NAME
+)
 async def get_tasks_created(
     user: Annotated[User, Depends(get_current_manager)], task_service: TaskServiceDep
 ):
@@ -69,6 +83,7 @@ async def get_tasks_created(
     "/{task_id}",
     response_model=TaskReadFull,
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=GET_TASK_ROUTE_NAME,
 )
 async def get_task_by_id(
     task_id: int,
@@ -87,6 +102,7 @@ async def get_task_by_id(
     "/{task_id}",
     response_model=TaskRead,
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=UPDATE_TASK_ROUTE_NAME,
 )
 async def update_task(
     task_id: int,
@@ -110,6 +126,7 @@ async def update_task(
 @router.delete(
     "/{task_id}",
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=DELETE_TASK_ROUTE_NAME,
 )
 async def delete_task(
     task_id: int,
@@ -136,6 +153,7 @@ async def delete_task(
         **responses.NOT_FOUND_RESPONSE,
         **responses.BAD_REQUEST_RESPONSE,
     },
+    name=ASSIGN_USER_TO_TASK_ROUTE_NAME,
 )
 async def assign_user_to_task(
     task_id: int,
