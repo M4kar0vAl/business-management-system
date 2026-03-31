@@ -41,7 +41,7 @@ class TestUpdateComment(GetUrlMixin):
             ),
             author=user,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, user)
+        comment = await create_comment(CommentCreate(text="comment"), task, user)
         comment_update = CommentUpdate(text="edited")
 
         response = await async_client.patch(
@@ -69,7 +69,7 @@ class TestUpdateComment(GetUrlMixin):
             ),
             author=user,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, user)
+        comment = await create_comment(CommentCreate(text="comment"), task, user)
 
         response = await async_client.patch(
             self.get_url(task.id, comment.id),
@@ -98,7 +98,7 @@ class TestUpdateComment(GetUrlMixin):
             ),
             author=user,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, user)
+        comment = await create_comment(CommentCreate(text="comment"), task, user)
 
         response = await async_client.patch(
             self.get_url(task.id, comment.id),
@@ -154,7 +154,7 @@ class TestUpdateComment(GetUrlMixin):
             ),
             author=user,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, user)
+        comment = await create_comment(CommentCreate(text="comment"), task, user)
 
         response = await async_client.patch(
             self.get_url(0, comment.id),
@@ -220,7 +220,7 @@ class TestUpdateComment(GetUrlMixin):
             ),
             author=author,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, author)
+        comment = await create_comment(CommentCreate(text="comment"), task, author)
 
         response = await async_client.patch(
             self.get_url(task.id, comment.id),

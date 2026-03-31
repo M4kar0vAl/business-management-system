@@ -48,9 +48,9 @@ async def create_task(task_service):
 async def create_comment(comment_service):
 
     async def _create_comment(
-        comment: CommentCreate, task_id: int, author: User
+        comment: CommentCreate, task: Task, author: User
     ) -> Comment:
-        created_comment = await comment_service.create_comment(comment, author, task_id)
+        created_comment = await comment_service.create_comment(comment, author, task)
         await comment_service.uow.flush()
         return created_comment
 

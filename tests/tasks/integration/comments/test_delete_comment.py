@@ -41,7 +41,7 @@ class TestDeleteComment(GetUrlMixin):
             ),
             author=user,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, user)
+        comment = await create_comment(CommentCreate(text="comment"), task, user)
 
         response = await async_client.delete(
             self.get_url(task.id, comment.id),
@@ -66,7 +66,7 @@ class TestDeleteComment(GetUrlMixin):
             ),
             author=user,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, user)
+        comment = await create_comment(CommentCreate(text="comment"), task, user)
 
         response = await async_client.delete(
             self.get_url(task.id, comment.id),
@@ -94,7 +94,7 @@ class TestDeleteComment(GetUrlMixin):
             ),
             author=user,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, user)
+        comment = await create_comment(CommentCreate(text="comment"), task, user)
 
         response = await async_client.delete(
             self.get_url(task.id, comment.id),
@@ -148,7 +148,7 @@ class TestDeleteComment(GetUrlMixin):
             ),
             author=user,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, user)
+        comment = await create_comment(CommentCreate(text="comment"), task, user)
 
         response = await async_client.delete(
             self.get_url(0, comment.id),
@@ -212,7 +212,7 @@ class TestDeleteComment(GetUrlMixin):
             ),
             author=author,
         )
-        comment = await create_comment(CommentCreate(text="comment"), task.id, author)
+        comment = await create_comment(CommentCreate(text="comment"), task, author)
 
         response = await async_client.delete(
             self.get_url(task.id, comment.id),
