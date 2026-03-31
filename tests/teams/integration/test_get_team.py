@@ -39,11 +39,11 @@ class TestGetTeam(GetUrlMixin):
     async def test_get_team_inactive(
         self, async_client, create_team, create_user, get_authorization_header
     ):
-        _, token = await create_user(
+        user, token = await create_user(
             UserCreate(email="user@example.com", password="Pass!234", is_active=False),
             authenticate=True,
         )
-        team = await create_team(TeamCreate(name="team"))
+        team = await create_team(TeamCreate(name="team"), members=[user])
 
         response = await async_client.get(
             self.get_url(team.id), headers=get_authorization_header(token)
@@ -63,3 +63,17 @@ class TestGetTeam(GetUrlMixin):
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    async def test_get_team_not_a_member(
+        self, async_client, create_user, create_team, get_authorization_header
+    ):
+        _, token = await create_user(
+            UserCreate(email="user@example.com", password="Pass!234"), authenticate=True
+        )
+        team = await create_team(TeamCreate(name="team"))
+
+        response = await async_client.get(
+            self.get_url(team.id), headers=get_authorization_header(token)
+        )
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
