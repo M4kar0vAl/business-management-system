@@ -51,7 +51,7 @@ async def create_task(
 
 
 @router.get(
-    "/assigned", response_model=list[TaskRead], name=GET_ASSIGNED_TASKS_ROUTE_NAME
+    "/assigned", response_model=list[TaskReadFull], name=GET_ASSIGNED_TASKS_ROUTE_NAME
 )
 async def get_tasks_assigned(
     user: Annotated[User, Depends(current_active_user)], task_service: TaskServiceDep
@@ -65,7 +65,7 @@ async def get_tasks_assigned(
 
 
 @router.get(
-    "/created", response_model=list[TaskRead], name=GET_CREATED_TASKS_ROUTE_NAME
+    "/created", response_model=list[TaskReadFull], name=GET_CREATED_TASKS_ROUTE_NAME
 )
 async def get_tasks_created(
     user: Annotated[User, Depends(get_current_manager)], task_service: TaskServiceDep

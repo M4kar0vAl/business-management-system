@@ -7,7 +7,7 @@ from app.auth.fastapi_users_instance import current_active_user, get_current_adm
 from app.auth.schemas import UserRead
 from app.auth.types import UserIdType
 from app.dependencies import UOWDep
-from app.tasks.schemas import TaskRead
+from app.tasks.schemas.tasks import TaskReadFull
 from app.teams.dependencies import TeamServiceDep, current_team, team_of_current_user
 from app.teams.schemas import AssignRole, TeamCreate, TeamRead
 
@@ -106,7 +106,7 @@ async def get_team_members(
 
 @router.get(
     "/{team_id}/tasks",
-    response_model=list[TaskRead],
+    response_model=list[TaskReadFull],
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
     name=GET_TEAM_TASKS_ROUTE_NAME,
 )

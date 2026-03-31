@@ -65,7 +65,11 @@ class TaskRepository:
         :param user: user to get tasks for
         :return: list of tasks
         """
-        stmt = select(Task).where(Task.assignee_id == user.id)
+        stmt = (
+            select(Task)
+            .where(Task.assignee_id == user.id)
+            .options(joinedload(Task.author), joinedload(Task.assignee))
+        )
         return list(await self.session.scalars(stmt))
 
     async def get_tasks_created_by_user(self, user: User) -> list[Task]:
@@ -75,7 +79,11 @@ class TaskRepository:
         :param user: user to get tasks for
         :return: list of tasks
         """
-        stmt = select(Task).where(Task.author_id == user.id)
+        stmt = (
+            select(Task)
+            .where(Task.author_id == user.id)
+            .options(joinedload(Task.author), joinedload(Task.assignee))
+        )
         return list(await self.session.scalars(stmt))
 
     @classmethod
