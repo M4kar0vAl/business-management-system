@@ -16,9 +16,30 @@ from app.tasks.schemas import CommentCreate, CommentRead, CommentUpdate
 router = APIRouter(prefix="/{task_id}/comments", tags=["Comments"])
 
 ROUTE_NAME_PREFIX = "tasks_comments"
+GET_COMMENTS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:list"
 CREATE_COMMENT_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:create"
 UPDATE_COMMENT_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:update"
 DELETE_COMMENT_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
+
+
+@router.get(
+    "/",
+    response_model=list[CommentRead],
+    responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=GET_COMMENTS_ROUTE_NAME,
+)
+async def get_comments(
+    task: Annotated[Task, Depends(task_of_user_in_team(current_active_user))],
+    comment_service: CommentServiceDep,
+):
+    """
+    Get all comments for a task.
+
+    User must be a member of a team where the task is created.
+
+    Active users only.
+    """
+    return await comment_service.get_comments_for_task(task)
 
 
 @router.post(
