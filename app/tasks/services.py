@@ -181,6 +181,15 @@ class CommentService:
 
         return comment
 
+    async def get_comments_for_task(self, task: Task) -> list[Comment]:
+        """
+        Get all comments for a task.
+
+        :param task: task to get comments for
+        :return: list of comments
+        """
+        return await self.comment_repo.get_comments_for_task(task)
+
     async def update_comment(
         self,
         comment: Comment,
