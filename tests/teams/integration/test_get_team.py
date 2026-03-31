@@ -3,7 +3,7 @@ from fastapi import status
 
 from app.auth.schemas import UserCreate
 from app.teams.routers import GET_TEAM_ROUTE_NAME
-from app.teams.schemas import TeamCreate, TeamReadFull
+from app.teams.schemas import TeamCreate, TeamRead
 from tests.mixins import GetUrlMixin
 
 
@@ -27,7 +27,7 @@ class TestGetTeam(GetUrlMixin):
         )
 
         assert response.status_code == status.HTTP_200_OK
-        assert TeamReadFull.model_validate(team).model_dump() == response.json()
+        assert TeamRead.model_validate(team).model_dump() == response.json()
 
     async def test_get_team_unauthenticated(self, async_client, create_team):
         team = await create_team(TeamCreate(name="team"))
