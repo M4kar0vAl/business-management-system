@@ -1,6 +1,7 @@
 from app.auth.models import User
 from app.auth.types import UserIdType
 from app.auth.user_manager import UserManager
+from app.tasks.models import Task
 from app.teams.exceptions import (
     TeamAlreadyExistsError,
     TeamDoesNotExistError,
@@ -67,6 +68,15 @@ class TeamService:
         :return: list of users
         """
         return await self.team_repo.get_team_members(team)
+
+    async def get_team_tasks(self, team: Team) -> list[Task]:
+        """
+        Get all tasks associated with the team.
+
+        :param team: the team to get tasks for
+        :return: list of tasks
+        """
+        return await self.team_repo.get_team_tasks(team)
 
     async def add_user_to_team(self, team: Team, user_id: UserIdType) -> None:
         """
