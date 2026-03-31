@@ -144,6 +144,20 @@ class CommentRepository:
             Comment, comment_id, options=[joinedload(Comment.user)]
         )
 
+    async def get_comments_for_task(self, task: Task) -> list[Comment]:
+        """
+        Get all comments for a task.
+
+        :param task: task to get comments for
+        :return: list of comments
+        """
+        stmt = (
+            select(Comment)
+            .where(Comment.task_id == task.id)
+            .options(joinedload(Comment.user))
+        )
+        return list(await self.session.scalars(stmt))
+
     @classmethod
     async def update(cls, comment: Comment, update_data: CommentUpdate) -> Comment:
         """
