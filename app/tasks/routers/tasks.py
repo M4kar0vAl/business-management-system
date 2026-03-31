@@ -93,6 +93,10 @@ async def get_task_by_id(
     """
     Get a task by id.
 
+    In order to get task:
+    - current user must be a member of a team where the task is created
+    - task with id `task_id` must exist
+
     Active user only.
     """
     return task
