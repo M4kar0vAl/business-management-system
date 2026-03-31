@@ -12,7 +12,7 @@ from tests.mixins import GetUrlMixin
 
 
 @pytest.mark.integration
-class TestGetTeams(GetUrlMixin):
+class TestGetTeamTasks(GetUrlMixin):
     url_name = GET_TEAM_TASKS_ROUTE_NAME
 
     def get_url(self, team_id: int):
