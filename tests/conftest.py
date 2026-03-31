@@ -15,6 +15,10 @@ from app.config import settings as app_settings
 from app.dependencies import get_session
 from app.main import app
 from app.models import Base
+from app.tasks.models import Task
+from app.tasks.repositories import TaskRepository
+from app.tasks.schemas import TaskCreate
+from app.tasks.services import TaskService
 from app.teams.repositories import TeamRepository
 from app.teams.schemas import TeamCreate
 from app.teams.services import TeamService
@@ -200,3 +204,30 @@ async def create_team(team_service, team_repository):
         return team
 
     return _create_team
+
+
+@pytest.fixture
+async def task_repository(session):
+    return TaskRepository(session)
+
+
+@pytest.fixture
+async def task_service(uow, user_manager):
+    return TaskService(uow, user_manager)
+
+
+@pytest.fixture
+async def create_task(task_service):
+
+    async def _create_task(
+        task: TaskCreate, author: User, assignee: User | None = None
+    ) -> Task:
+        created_task = await task_service.create_task(task, author)
+
+        if assignee:
+            created_task.assignee_id = assignee.id
+
+        await task_service.uow.flush()
+        return created_task
+
+    return _create_task
