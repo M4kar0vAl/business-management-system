@@ -69,9 +69,17 @@ async def create_team(uow: UOWDep, team_service: TeamServiceDep, team: TeamCreat
     name=GET_TEAM_ROUTE_NAME,
     responses={**responses.NOT_FOUND_RESPONSE},
 )
-async def get_team_by_id(team: Annotated[Team, Depends(current_team(full=True))]):
+async def get_team_by_id(
+    team: Annotated[
+        Team, Depends(team_of_current_user(current_active_user, full=True))
+    ],
+):
     """
     Get team info by id.
+
+    In order to get the team info:
+    - the team must exist
+    - the current user must be a member of the team
 
     Active users only.
     """
