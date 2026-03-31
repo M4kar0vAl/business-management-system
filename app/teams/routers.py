@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING, Annotated
+
 from fastapi import APIRouter, Depends, status
 
 from app import responses
@@ -5,8 +7,12 @@ from app.auth.fastapi_users_instance import current_active_user, get_current_adm
 from app.auth.schemas import UserRead
 from app.auth.types import UserIdType
 from app.dependencies import UOWDep
-from app.teams.dependencies import TeamServiceDep
+from app.teams.dependencies import TeamServiceDep, current_team
 from app.teams.schemas import AssignRole, TeamCreate, TeamRead, TeamReadFull
+
+if TYPE_CHECKING:
+    from app.teams.models import Team
+
 
 router = APIRouter(
     prefix="/teams",
@@ -60,13 +66,13 @@ async def create_team(uow: UOWDep, team_service: TeamServiceDep, team: TeamCreat
     name=GET_TEAM_ROUTE_NAME,
     responses={**responses.NOT_FOUND_RESPONSE},
 )
-async def get_team_by_id(team_service: TeamServiceDep, team_id: int):
+async def get_team_by_id(team: Annotated[Team, Depends(current_team(full=True))]):
     """
     Get team info by id.
 
     Active users only.
     """
-    return await team_service.get_team_by_id(team_id)
+    return team
 
 
 @router.post(
@@ -81,14 +87,16 @@ async def get_team_by_id(team_service: TeamServiceDep, team_id: int):
     },
 )
 async def add_user_to_team(
-    team_service: TeamServiceDep, team_id: int, user_id: UserIdType
+    team: Annotated[Team, Depends(current_team())],
+    user_id: UserIdType,
+    team_service: TeamServiceDep,
 ):
     """
     Add user to team.
 
     Only users with role admin or superusers can add users to teams.
     """
-    await team_service.add_user_to_team(team_id, user_id)
+    await team_service.add_user_to_team(team, user_id)
 
     return {"detail": "User added successfully"}
 

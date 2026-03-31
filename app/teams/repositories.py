@@ -32,13 +32,16 @@ class TeamRepository:
         """
         return await self.session.get(Team, id_)
 
-    async def get_by_id_with_members(self, id_: int) -> Team | None:
+    async def get_by_id_full(self, id_: int) -> Team | None:
         """
-        Get team by id with prefetched members
+        Get team by id with all relations.
+
         :param id_: id of a team
         :return: Team instance or None
         """
-        return await self.session.get(Team, id_, options=[selectinload(Team.users)])
+        return await self.session.get(
+            Team, id_, options=[selectinload(Team.users), selectinload(Team.tasks)]
+        )
 
     async def get_by_name(self, name: str) -> Team | None:
         """

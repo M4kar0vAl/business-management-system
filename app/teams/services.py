@@ -32,8 +32,19 @@ class TeamService:
 
         return await self.team_repo.create(team_data)
 
-    async def get_team_by_id(self, team_id: int) -> Team:
-        team = await self.team_repo.get_by_id_with_members(team_id)
+    async def get_team_by_id(self, team_id: int, full: bool = False) -> Team:
+        """
+        Get team by id.
+
+        :param team_id: id of a team to get
+        :param full: boolean indicating whether to return team with all its relations
+        :return: Team instance
+        :raises: TeamDoesNotExistError: if a team with the given id does not exist
+        """
+        if full:
+            team = await self.team_repo.get_by_id_full(team_id)
+        else:
+            team = await self.team_repo.get_by_id(team_id)
 
         if not team:
             raise TeamDoesNotExistError(team_id)
@@ -48,36 +59,24 @@ class TeamService:
         """
         return await self.team_repo.get_all()
 
-    async def get_team_members(self, team_id: int) -> list[User]:
+    async def get_team_members(self, team: Team) -> list[User]:
         """
         Get all users who are members of the team
 
-        :param team_id: id of the team to get members of
+        :param team: the team to get members of
         :return: list of users
-        :raises: TeamDoesNotExistError if a team with the given id does not exist
         """
-        team = await self.team_repo.get_by_id(team_id)
-
-        if not team:
-            raise TeamDoesNotExistError(team_id)
-
         return await self.team_repo.get_team_members(team)
 
-    async def add_user_to_team(self, team_id: int, user_id: UserIdType) -> None:
+    async def add_user_to_team(self, team: Team, user_id: UserIdType) -> None:
         """
         Add a user to the team
 
-        :param team_id: id of the team to add a user to
+        :param team: the team to add a user to
         :param user_id: id of a user to add to a team
         :return: None
-        :raises: TeamDoesNotExistError if a team with the given id does not exist
         :raises: UserAlreadyInTeamError if a user is already assigned to a team
         """
-        team = await self.team_repo.get_by_id(team_id)
-
-        if not team:
-            raise TeamDoesNotExistError(team_id)
-
         user = await self.user_manager.get(user_id)
 
         if user.team:
