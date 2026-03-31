@@ -26,25 +26,18 @@ async def get_team_service(
 TeamServiceDep = Annotated[TeamService, Depends(get_team_service)]
 
 
-def current_team(full: bool = False):
+async def current_team(team_id: Annotated[int, Path()], team_service: TeamServiceDep):
     """
-    Dependency factory to get task from `task_id` path parameter.
+    Dependency to get team from `team_id` path parameter.
 
-    :param full: boolean indicating whether to get task with all its relations
-    :return: dependency for getting current task
-    :raises TeamDoesNotExistError: if the task with the given id does not exist
+    :return: Team
+    :raises TeamDoesNotExistError: if the team with the given id does not exist
     """
-
-    async def _current_team(
-        team_id: Annotated[int, Path()], team_service: TeamServiceDep
-    ):
-        return await team_service.get_team_by_id(team_id, full=full)
-
-    return _current_team
+    return await team_service.get_team_by_id(team_id)
 
 
 def team_of_current_user(
-    user_dep: Callable[..., User | Awaitable[User]], full: bool = False
+    user_dep: Callable[..., User | Awaitable[User]],
 ):
     """
     Dependency factory to get team from `team_id` path parameter.
@@ -52,14 +45,13 @@ def team_of_current_user(
     Dependency will perform validation that user is a member of a team.
 
     :param user_dep: dependency for getting the user performing the action
-    :param full: boolean indicating whether to get team with all its relations
     :return: dependency for getting the current team
     :raises TeamDoesNotExistError: if the task with the given id does not exist
     :raises UserDoesNotBelongToTeamError: if the user is not a member of a team
     """
 
     async def _team_of_current_user(
-        team: Annotated[Team, Depends(current_team(full=full))],
+        team: Annotated[Team, Depends(current_team)],
         user: Annotated[User, Depends(user_dep)],
     ):
         if user.team_id != team.id:

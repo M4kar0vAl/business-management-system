@@ -3,7 +3,6 @@ from typing import Annotated
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.auth.models import Role
-from app.auth.schemas import UserRead
 
 
 class AssignRole(BaseModel):
@@ -27,10 +26,6 @@ class TeamRead(TeamBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-
-
-class TeamReadFull(TeamRead):
-    users: list[UserRead]
 
 
 class TeamCreate(TeamBase):

@@ -33,7 +33,7 @@ class TeamService:
 
         return await self.team_repo.create(team_data)
 
-    async def get_team_by_id(self, team_id: int, full: bool = False) -> Team:
+    async def get_team_by_id(self, team_id: int) -> Team:
         """
         Get team by id.
 
@@ -42,10 +42,7 @@ class TeamService:
         :return: Team instance
         :raises: TeamDoesNotExistError: if a team with the given id does not exist
         """
-        if full:
-            team = await self.team_repo.get_by_id_full(team_id)
-        else:
-            team = await self.team_repo.get_by_id(team_id)
+        team = await self.team_repo.get_by_id(team_id)
 
         if not team:
             raise TeamDoesNotExistError(team_id)

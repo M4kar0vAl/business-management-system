@@ -9,7 +9,7 @@ from app.auth.types import UserIdType
 from app.dependencies import UOWDep
 from app.tasks.schemas import TaskRead
 from app.teams.dependencies import TeamServiceDep, current_team, team_of_current_user
-from app.teams.schemas import AssignRole, TeamCreate, TeamRead, TeamReadFull
+from app.teams.schemas import AssignRole, TeamCreate, TeamRead
 
 if TYPE_CHECKING:
     from app.teams.models import Team
@@ -65,14 +65,12 @@ async def create_team(uow: UOWDep, team_service: TeamServiceDep, team: TeamCreat
 
 @router.get(
     "/{team_id}",
-    response_model=TeamReadFull,
+    response_model=TeamRead,
     name=GET_TEAM_ROUTE_NAME,
     responses={**responses.NOT_FOUND_RESPONSE},
 )
 async def get_team_by_id(
-    team: Annotated[
-        Team, Depends(team_of_current_user(current_active_user, full=True))
-    ],
+    team: Annotated[Team, Depends(team_of_current_user(current_active_user))],
 ):
     """
     Get team info by id.
@@ -138,7 +136,7 @@ async def get_team_tasks(
     },
 )
 async def add_user_to_team(
-    team: Annotated[Team, Depends(current_team())],
+    team: Annotated[Team, Depends(current_team)],
     user_id: UserIdType,
     team_service: TeamServiceDep,
 ):

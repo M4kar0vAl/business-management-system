@@ -1,6 +1,5 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.auth.models import Role, User
 from app.tasks.models import Task
@@ -32,20 +31,6 @@ class TeamRepository:
         :return: Team instance or None
         """
         return await self.session.get(Team, id_)
-
-    async def get_by_id_full(self, id_: int) -> Team | None:
-        """
-        Get team by id with all relations.
-
-        :param id_: id of a team
-        :return: Team instance or None
-        """
-        stmt = (
-            select(Team)
-            .where(Team.id == id_)
-            .options(selectinload(Team.users), selectinload(Team.tasks))
-        )
-        return (await self.session.scalars(stmt)).one_or_none()
 
     async def get_by_name(self, name: str) -> Team | None:
         """
