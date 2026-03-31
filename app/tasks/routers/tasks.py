@@ -6,8 +6,8 @@ from app import responses
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
 from app.auth.types import UserIdType
-from app.tasks.dependencies import TaskServiceDep
-from app.tasks.models import TaskStatus
+from app.tasks.dependencies import TaskServiceDep, task_of_user_in_team
+from app.tasks.models import Task, TaskStatus
 from app.tasks.schemas import TaskCreate, TaskRead
 from app.tasks.schemas.tasks import TaskReadFull, TaskUpdate
 
@@ -86,16 +86,16 @@ async def get_tasks_created(
     name=GET_TASK_ROUTE_NAME,
 )
 async def get_task_by_id(
-    task_id: int,
-    user: Annotated[User, Depends(current_active_user)],
-    task_service: TaskServiceDep,
+    task: Annotated[
+        Task, Depends(task_of_user_in_team(current_active_user, full=True))
+    ],
 ):
     """
     Get a task by id.
 
     Active user only.
     """
-    return await task_service.get_task_by_id(task_id, user)
+    return task
 
 
 @router.patch(
@@ -105,9 +105,8 @@ async def get_task_by_id(
     name=UPDATE_TASK_ROUTE_NAME,
 )
 async def update_task(
-    task_id: int,
+    task: Annotated[Task, Depends(task_of_user_in_team(get_current_manager))],
     update_data: TaskUpdate,
-    user: Annotated[User, Depends(get_current_manager)],
     task_service: TaskServiceDep,
 ):
     """
@@ -120,7 +119,7 @@ async def update_task(
 
     Active manager or admin only.
     """
-    return await task_service.update_task(task_id, update_data, user)
+    return await task_service.update_task(task, update_data)
 
 
 @router.delete(
@@ -129,8 +128,7 @@ async def update_task(
     name=DELETE_TASK_ROUTE_NAME,
 )
 async def delete_task(
-    task_id: int,
-    user: Annotated[User, Depends(get_current_manager)],
+    task: Annotated[Task, Depends(task_of_user_in_team(get_current_manager))],
     task_service: TaskServiceDep,
 ):
     """
@@ -143,7 +141,7 @@ async def delete_task(
 
     Active manager or admin only.
     """
-    await task_service.delete_task(task_id, user)
+    await task_service.delete_task(task)
 
 
 @router.post(
@@ -156,9 +154,8 @@ async def delete_task(
     name=ASSIGN_USER_TO_TASK_ROUTE_NAME,
 )
 async def assign_user_to_task(
-    task_id: int,
+    task: Annotated[Task, Depends(task_of_user_in_team(get_current_manager))],
     assignee_id: UserIdType,
-    assigner: Annotated[User, Depends(get_current_manager)],
     task_service: TaskServiceDep,
 ):
     """
@@ -173,7 +170,7 @@ async def assign_user_to_task(
 
     Active manager or admin only.
     """
-    await task_service.assign_user_to_task(task_id, assignee_id, assigner)
+    await task_service.assign_user_to_task(task, assignee_id)
 
     return {"detail": "User assigned to the task successfully"}
 
@@ -185,7 +182,7 @@ async def assign_user_to_task(
     name=UPDATE_TASK_STATUS_ROUTE_NAME,
 )
 async def update_task_status(
-    task_id: int,
+    task: Annotated[Task, Depends(task_of_user_in_team(current_active_user))],
     task_status: Annotated[TaskStatus, Body(embed=True)],
     user: Annotated[User, Depends(current_active_user)],
     task_service: TaskServiceDep,
@@ -200,4 +197,4 @@ async def update_task_status(
 
     Active users only.
     """
-    return await task_service.update_task_status(task_id, task_status, user)
+    return await task_service.update_task_status(task, task_status, user)
