@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.auth.models import Role, User
+from app.tasks.models import Task
 from app.teams.models import Team
 from app.teams.schemas import TeamCreate, TeamUpdate
 
@@ -117,6 +118,17 @@ class TeamRepository:
         :return: list of users in the team
         """
         stmt = select(User).where(User.team_id == team.id)
+
+        return list(await self.session.scalars(stmt))
+
+    async def get_team_tasks(self, team: Team) -> list[Task]:
+        """
+        Returns all tasks associated with the team
+
+        :param team: team to get tasks of
+        :return: list of tasks associated with the team
+        """
+        stmt = select(Task).where(Task.team_id == team.id)
 
         return list(await self.session.scalars(stmt))
 
