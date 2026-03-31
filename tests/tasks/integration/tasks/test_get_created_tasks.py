@@ -7,7 +7,7 @@ from fastapi import status
 from app.auth.models import Role
 from app.auth.schemas import UserCreate
 from app.tasks.routers.tasks import GET_CREATED_TASKS_ROUTE_NAME
-from app.tasks.schemas import TaskCreate, TaskRead
+from app.tasks.schemas import TaskCreate, TaskReadFull
 from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin
 
@@ -55,14 +55,14 @@ class TestGetCreatedTasks(GetUrlMixin):
 
         assert response.status_code == status.HTTP_200_OK
 
-        expected_task1 = await task_repository.get_by_id(task1.id)
-        expected_task2 = await task_repository.get_by_id(task2.id)
+        expected_task1 = await task_repository.get_by_id_full(task1.id)
+        expected_task2 = await task_repository.get_by_id_full(task2.id)
         assert (
-            json.loads(TaskRead.model_validate(expected_task1).model_dump_json())
+            json.loads(TaskReadFull.model_validate(expected_task1).model_dump_json())
             in response.json()
         )
         assert (
-            json.loads(TaskRead.model_validate(expected_task2).model_dump_json())
+            json.loads(TaskReadFull.model_validate(expected_task2).model_dump_json())
             in response.json()
         )
 
@@ -177,8 +177,8 @@ class TestGetCreatedTasks(GetUrlMixin):
 
         assert response.status_code == status.HTTP_200_OK
 
-        expected_task = await task_repository.get_by_id(task.id)
+        expected_task = await task_repository.get_by_id_full(task.id)
         assert (
-            json.loads(TaskRead.model_validate(expected_task).model_dump_json())
+            json.loads(TaskReadFull.model_validate(expected_task).model_dump_json())
             in response.json()
         )

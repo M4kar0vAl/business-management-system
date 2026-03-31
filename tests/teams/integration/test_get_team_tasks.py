@@ -5,7 +5,8 @@ import pytest
 from fastapi import status
 
 from app.auth.schemas import UserCreate
-from app.tasks.schemas import TaskCreate, TaskRead
+from app.tasks.schemas import TaskCreate
+from app.tasks.schemas.tasks import TaskReadFull
 from app.teams.routers import GET_TEAM_TASKS_ROUTE_NAME
 from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin
@@ -28,6 +29,7 @@ class TestGetTeamTasks(GetUrlMixin):
         create_team,
         create_user,
         create_task,
+        task_repository,
         get_authorization_header,
     ):
         user, token = await create_user(
@@ -65,9 +67,21 @@ class TestGetTeamTasks(GetUrlMixin):
 
         data = response.json()
 
-        assert json.loads(TaskRead.model_validate(task1).model_dump_json()) in data
-        assert json.loads(TaskRead.model_validate(task2).model_dump_json()) in data
-        assert json.loads(TaskRead.model_validate(task3).model_dump_json()) not in data
+        expected_task1 = await task_repository.get_by_id_full(task1.id)
+        expected_task2 = await task_repository.get_by_id_full(task2.id)
+        expected_task3 = await task_repository.get_by_id_full(task3.id)
+        assert (
+            json.loads(TaskReadFull.model_validate(expected_task1).model_dump_json())
+            in data
+        )
+        assert (
+            json.loads(TaskReadFull.model_validate(expected_task2).model_dump_json())
+            in data
+        )
+        assert (
+            json.loads(TaskReadFull.model_validate(expected_task3).model_dump_json())
+            not in data
+        )
 
     async def test_get_team_tasks_unauthenticated(self, async_client, create_team):
         team = await create_team(TeamCreate(name="team"))
