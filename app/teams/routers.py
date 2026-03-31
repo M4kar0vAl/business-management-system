@@ -7,6 +7,7 @@ from app.auth.fastapi_users_instance import current_active_user, get_current_adm
 from app.auth.schemas import UserRead
 from app.auth.types import UserIdType
 from app.dependencies import UOWDep
+from app.tasks.schemas import TaskRead
 from app.teams.dependencies import TeamServiceDep, current_team, team_of_current_user
 from app.teams.schemas import AssignRole, TeamCreate, TeamRead, TeamReadFull
 
@@ -26,6 +27,7 @@ GET_TEAMS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_teams"
 CREATE_TEAM_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:create_team"
 GET_TEAM_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_team"
 GET_TEAM_MEMBERS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_members"
+GET_TEAM_TASKS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_tasks"
 ADD_USER_TO_TEAM_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:add_user"
 REMOVE_USER_FROM_TEAM_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:remove_user"
 ASSIGN_USER_ROLE_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:assign_user_role"
@@ -94,6 +96,26 @@ async def get_team_members(
     Active users only.
     """
     return await team_service.get_team_members(team)
+
+
+@router.get(
+    "/{team_id}/tasks",
+    response_model=list[TaskRead],
+    responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    name=GET_TEAM_TASKS_ROUTE_NAME,
+)
+async def get_team_tasks(
+    team: Annotated[Team, Depends(team_of_current_user(current_active_user))],
+    team_service: TeamServiceDep,
+):
+    """
+    Get tasks of a team.
+
+    Current user must be a member of a team.
+
+    Active users only.
+    """
+    return await team_service.get_team_tasks(team)
 
 
 @router.post(
