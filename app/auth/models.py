@@ -16,6 +16,7 @@ from app.models import Base
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
+    from app.tasks.models import Comment, Task
     from app.teams.models import Team
 
 
@@ -37,6 +38,15 @@ class User(IdIntPkMixin, SQLAlchemyBaseUserTable[UserIdType], Base):
         back_populates="user", cascade="all, delete-orphan"
     )
     team: Mapped[Team | None] = relationship(back_populates="users")
+    tasks_authored: Mapped[list[Task]] = relationship(
+        back_populates="author", foreign_keys="[Task.author_id]"
+    )
+    tasks_assigned: Mapped[list[Task]] = relationship(
+        back_populates="assignee", foreign_keys="[Task.assignee_id]"
+    )
+    comments: Mapped[list[Comment]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
 
     @classmethod
     def get_db(cls, session: AsyncSession) -> SQLAlchemyUserDatabase:

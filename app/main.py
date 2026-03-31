@@ -8,6 +8,7 @@ from app.auth.actions import create_user
 from app.auth.routers import auth_router, users_router
 from app.config import settings
 from app.exception_handlers import register_exception_handlers
+from app.tasks.routers import router as tasks_router
 from app.teams.routers import router as teams_router
 
 log = logging.getLogger(__file__)
@@ -32,6 +33,7 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(auth_router)
 app.include_router(users_router)
 app.include_router(teams_router)
+app.include_router(tasks_router)
 
 register_admin_views(app)
 
