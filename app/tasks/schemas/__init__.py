@@ -4,8 +4,9 @@ __all__ = [
     "CommentUpdate",
     "TaskCreate",
     "TaskRead",
+    "TaskReadFull",
     "TaskUpdate",
 ]
 
 from .comments import CommentCreate, CommentRead, CommentUpdate
-from .tasks import TaskCreate, TaskRead, TaskUpdate
+from .tasks import TaskCreate, TaskRead, TaskReadFull, TaskUpdate

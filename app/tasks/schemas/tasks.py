@@ -5,8 +5,6 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.auth.schemas import UserRead
 from app.tasks.models import TaskStatus
-from app.tasks.schemas import CommentRead
-from app.teams.schemas import TeamRead
 
 
 class TaskBase(BaseModel):
@@ -32,19 +30,17 @@ class TaskReadBase(TaskBase):
 
     id: int
     created_at: datetime
+    team_id: Annotated[int, Field(ge=1)]
 
 
 class TaskRead(TaskReadBase):
-    team_id: Annotated[int, Field(ge=1)]
     author_id: Annotated[int | None, Field(ge=1)]
     assignee_id: Annotated[int | None, Field(ge=1)]
 
 
 class TaskReadFull(TaskReadBase):
-    team: TeamRead
     author: UserRead | None
     assignee: UserRead | None
-    comments: list[CommentRead]
 
 
 class TaskUpdate(BaseModel):

@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
+from sqlalchemy.orm import joinedload
 
 from app.tasks.models import Comment, Task
 from app.tasks.schemas import CommentCreate, CommentUpdate, TaskCreate, TaskUpdate
@@ -54,8 +54,6 @@ class TaskRepository:
             .options(
                 joinedload(Task.author),
                 joinedload(Task.assignee),
-                joinedload(Task.team),
-                selectinload(Task.comments).joinedload(Comment.user),
             )
         )
         return (await self.session.scalars(stmt)).one_or_none()
