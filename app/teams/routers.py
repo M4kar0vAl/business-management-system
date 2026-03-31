@@ -137,6 +137,11 @@ async def add_user_to_team(
     """
     Add user to team.
 
+    In order to add user to team:
+    - user with `user_id` must exist
+    - team with `team_id` must exist
+    - user with `user_id` must not be assigned to another team
+
     Only users with role admin or superusers can add users to teams.
     """
     await team_service.add_user_to_team(team, user_id)
