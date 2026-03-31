@@ -39,9 +39,12 @@ class TeamRepository:
         :param id_: id of a team
         :return: Team instance or None
         """
-        return await self.session.get(
-            Team, id_, options=[selectinload(Team.users), selectinload(Team.tasks)]
+        stmt = (
+            select(Team)
+            .where(Team.id == id_)
+            .options(selectinload(Team.users), selectinload(Team.tasks))
         )
+        return (await self.session.scalars(stmt)).one_or_none()
 
     async def get_by_name(self, name: str) -> Team | None:
         """
