@@ -2,7 +2,14 @@ from datetime import datetime
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, Text
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auth.types import UserIdType
@@ -47,6 +54,9 @@ class Task(IdIntPkMixin, CreatedAtMixin, Base):
     comments: Mapped[list[Comment]] = relationship(
         back_populates="task", cascade="all, delete-orphan"
     )
+    evaluations: Mapped[list[Evaluation]] = relationship(
+        back_populates="task", cascade="all, delete-orphan"
+    )
 
     def __str__(self):
         return f"Task {self.id} [{self.status}]"
@@ -67,3 +77,22 @@ class Comment(IdIntPkMixin, CreatedAtMixin, Base):
 
     def __str__(self):
         return f"Comment {self.id}"
+
+
+class Evaluation(IdIntPkMixin, CreatedAtMixin, Base):
+    __tablename__ = "evaluations"
+
+    value: Mapped[int] = mapped_column(Integer)
+
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"))
+    author_id: Mapped[UserIdType] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE")
+    )
+
+    task: Mapped[Task] = relationship(back_populates="evaluations")
+    author: Mapped[User] = relationship(back_populates="evaluations_as_author")
+
+    __table_args__ = (
+        CheckConstraint(value.between(1, 5), name="value_range_check"),
+        UniqueConstraint("task_id", "author_id"),
+    )
