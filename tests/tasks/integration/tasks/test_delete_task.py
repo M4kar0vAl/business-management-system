@@ -124,6 +124,38 @@ class TestDeleteTask(GetUrlMixin):
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
+    async def test_delete_task_not_an_author(
+        self,
+        async_client,
+        create_user,
+        create_team,
+        create_task,
+        get_authorization_header,
+    ):
+        user, token = await create_user(
+            UserCreate(
+                email="user@example.com", password="Pass!234", role=Role.MANAGER
+            ),
+            authenticate=True,
+        )
+        another_user, _ = await create_user(
+            UserCreate(email="user1@example.com", password="Pass!234"),
+        )
+        team = await create_team(TeamCreate(name="team"), members=[user, another_user])
+        task = await create_task(
+            TaskCreate(
+                description="asfjsa", deadline=self._some_deadline, team_id=team.id
+            ),
+            author=another_user,
+        )
+
+        response = await async_client.delete(
+            self.get_url(task.id),
+            headers=get_authorization_header(token),
+        )
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
     async def test_delete_task_not_exists(
         self, async_client, create_user, get_authorization_header
     ):
