@@ -108,7 +108,9 @@ async def get_task_by_id(
     name=UPDATE_TASK_ROUTE_NAME,
 )
 async def update_task(
-    task: Annotated[Task, Depends(task_of_user_in_team(get_current_manager))],
+    task: Annotated[
+        Task, Depends(task_of_user_in_team(get_current_manager, author=True))
+    ],
     update_data: TaskUpdate,
     task_service: TaskServiceDep,
 ):
@@ -118,6 +120,7 @@ async def update_task(
     In order to update a task:
     - current user must be a member of a team where the task is created
     - current user must have at least `"manager"` role
+    - current user must be the author of the task
     - task with id `task_id` must exist
 
     Active manager or admin only.
@@ -131,7 +134,9 @@ async def update_task(
     name=DELETE_TASK_ROUTE_NAME,
 )
 async def delete_task(
-    task: Annotated[Task, Depends(task_of_user_in_team(get_current_manager))],
+    task: Annotated[
+        Task, Depends(task_of_user_in_team(get_current_manager, author=True))
+    ],
     task_service: TaskServiceDep,
 ):
     """
@@ -140,6 +145,7 @@ async def delete_task(
     In order to delete a task:
     - current user must be a member of a team where the task is created
     - current user must have at least `"manager"` role
+    - current user must be the author of the task
     - task with id `task_id` must exist
 
     Active manager or admin only.
