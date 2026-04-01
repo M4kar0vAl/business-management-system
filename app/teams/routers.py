@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Body, Depends, status
+from pydantic import EmailStr
 
 from app import responses
 from app.auth.fastapi_users_instance import current_active_user, get_current_admin
@@ -125,7 +126,7 @@ async def get_team_tasks(
 
 
 @router.post(
-    "/{team_id}/members/{user_id}",
+    "/{team_id}/members",
     dependencies=[Depends(get_current_admin)],
     name=ADD_USER_TO_TEAM_ROUTE_NAME,
     responses={
@@ -137,20 +138,20 @@ async def get_team_tasks(
 )
 async def add_user_to_team(
     team: Annotated[Team, Depends(current_team)],
-    user_id: UserIdType,
+    user_email: Annotated[EmailStr, Body(embed=True)],
     team_service: TeamServiceDep,
 ):
     """
     Add user to team.
 
     In order to add user to team:
-    - user with `user_id` must exist
+    - user with `user_email` must exist
     - team with `team_id` must exist
-    - user with `user_id` must not be assigned to another team
+    - user with `user_email` must not be assigned to another team
 
     Only users with role admin or superusers can add users to teams.
     """
-    await team_service.add_user_to_team(team, user_id)
+    await team_service.add_user_to_team(team, user_email)
 
     return {"detail": "User added successfully"}
 

@@ -1,3 +1,5 @@
+from pydantic import EmailStr
+
 from app.auth.models import User
 from app.auth.types import UserIdType
 from app.auth.user_manager import UserManager
@@ -75,16 +77,17 @@ class TeamService:
         """
         return await self.team_repo.get_team_tasks(team)
 
-    async def add_user_to_team(self, team: Team, user_id: UserIdType) -> None:
+    async def add_user_to_team(self, team: Team, user_email: EmailStr) -> None:
         """
         Add a user to the team
 
         :param team: the team to add a user to
-        :param user_id: id of a user to add to a team
+        :param user_email: email of a user to add to a team
         :return: None
+        :raises UserNotExists: if the user with the given eamil does not exist
         :raises: UserAlreadyInTeamError if a user is already assigned to a team
         """
-        user = await self.user_manager.get(user_id)
+        user = await self.user_manager.get_by_email(user_email)
 
         if user.team:
             raise UserAlreadyInTeamError(user)
