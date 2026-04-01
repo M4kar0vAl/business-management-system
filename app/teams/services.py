@@ -84,7 +84,7 @@ class TeamService:
         :param team: the team to add a user to
         :param user_email: email of a user to add to a team
         :return: None
-        :raises UserNotExists: if the user with the given eamil does not exist
+        :raises UserNotExists: if the user with the given email does not exist
         :raises: UserAlreadyInTeamError if a user is already assigned to a team
         """
         user = await self.user_manager.get_by_email(user_email)
