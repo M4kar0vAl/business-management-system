@@ -1,6 +1,5 @@
 from datetime import UTC, datetime, timedelta
 
-import pytest
 from fastapi import status
 
 from app.auth.schemas import UserCreate
@@ -10,7 +9,6 @@ from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin
 
 
-@pytest.mark.integration
 class TestCreateComment(GetUrlMixin):
     url_name = CREATE_COMMENT_ROUTE_NAME
 

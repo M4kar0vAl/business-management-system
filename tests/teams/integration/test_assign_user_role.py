@@ -1,4 +1,3 @@
-import pytest
 from fastapi import status
 
 from app.auth.models import Role
@@ -9,7 +8,6 @@ from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin
 
 
-@pytest.mark.integration
 class TestAssignUserRole(GetUrlMixin):
     url_name = ASSIGN_USER_ROLE_ROUTE_NAME
     role_to_update = Role.MANAGER

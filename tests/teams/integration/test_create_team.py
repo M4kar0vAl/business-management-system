@@ -1,4 +1,3 @@
-import pytest
 from fastapi import status
 
 from app.auth.models import Role
@@ -8,7 +7,6 @@ from app.teams.schemas import TeamCreate, TeamRead
 from tests.mixins import GetUrlMixin
 
 
-@pytest.mark.integration
 class TestCreateTeam(GetUrlMixin):
     url_name = CREATE_TEAM_ROUTE_NAME
     create_data = TeamCreate(name="team").model_dump()

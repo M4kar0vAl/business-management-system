@@ -1,4 +1,3 @@
-import pytest
 from fastapi import status
 
 from app.auth.models import Role
@@ -6,7 +5,6 @@ from app.auth.schemas import UserCreate, UserUpdate
 from tests.mixins import GetUrlMixin
 
 
-@pytest.mark.integration
 class TestUpdateCurrentUser(GetUrlMixin):
     url_name = "users:patch_current_user"
 

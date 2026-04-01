@@ -1,4 +1,3 @@
-import pytest
 from fastapi import status
 
 from app.auth.models import Role
@@ -9,7 +8,6 @@ from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin
 
 
-@pytest.mark.integration
 class TestRemoveUserFromTeam(GetUrlMixin):
     url_name = REMOVE_USER_FROM_TEAM_ROUTE_NAME
 

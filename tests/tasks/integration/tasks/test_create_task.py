@@ -1,7 +1,6 @@
 import json
 from datetime import UTC, datetime, timedelta
 
-import pytest
 from fastapi import status
 
 from app.auth.models import Role
@@ -12,7 +11,6 @@ from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin
 
 
-@pytest.mark.integration
 class TestCreateTask(GetUrlMixin):
     url_name = TASK_CREATE_ROUTE_NAME
 

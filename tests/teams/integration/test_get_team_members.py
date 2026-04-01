@@ -1,4 +1,3 @@
-import pytest
 from fastapi import status
 
 from app.auth.schemas import UserCreate, UserRead
@@ -7,7 +6,6 @@ from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin
 
 
-@pytest.mark.integration
 class TestGetTeamMembers(GetUrlMixin):
     url_name = GET_TEAM_MEMBERS_ROUTE_NAME
 

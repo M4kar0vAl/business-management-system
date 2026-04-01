@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 import pytest
 from fastapi.security import OAuth2PasswordRequestForm
@@ -29,6 +30,20 @@ from tests.db_utils import (
     ensure_db_schema,
     ensure_test_db,
 )
+
+
+def pytest_collection_modifyitems(config, items):
+    """
+    Automatically adds marks to tests. Adds each part of a path as a mark except test file.
+    """
+    for item in items:
+        path = Path(item.fspath)
+        relative = path.relative_to(config.rootpath / "tests")
+        parts = relative.parts
+
+        for part in parts:
+            if part != parts[-1]:
+                item.add_marker(getattr(pytest.mark, part))
 
 
 @pytest.fixture(scope="session", autouse=True)

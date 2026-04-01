@@ -1,4 +1,3 @@
-import pytest
 from fastapi import status
 from fastapi_users.password import PasswordHelper
 
@@ -9,7 +8,6 @@ from tests.mixins import GetUrlMixin
 password_helper = PasswordHelper()
 
 
-@pytest.mark.integration
 class TestRegister(GetUrlMixin):
     url_name = "register:register"
 
