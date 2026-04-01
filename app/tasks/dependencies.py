@@ -7,6 +7,7 @@ from app.auth.dependencies import get_user_manager
 from app.auth.models import User
 from app.auth.user_manager import UserManager
 from app.dependencies import UOWDep
+from app.http_exceptions import ForbiddenError
 from app.tasks.exceptions import (
     CommentDoesNotBelongToUser,
 )
@@ -52,7 +53,9 @@ def current_task(full: bool = False):
 
 
 def task_of_user_in_team(
-    user_dep: Callable[..., User | Awaitable[User]], full: bool = False
+    user_dep: Callable[..., User | Awaitable[User]],
+    full: bool = False,
+    author: bool = False,
 ):
     """
     Dependency factory to get task from `task_id` path parameter.
@@ -61,9 +64,11 @@ def task_of_user_in_team(
 
     :param user_dep: dependency for getting the user performing the action
     :param full: boolean indicating whether to get task with all its relations
+    :param author: boolean indicating whether to check that user is the one who created the task
     :return: dependency for getting the current task
     :raises TaskDoesNotExistError: if the task with the given id does not exist
     :raises UserDoesNotBelongToTeamError: if the user does not belong to the team where the task is created
+    :raises ForbiddenError: if author is True and the user is not an author of the task
     """
 
     async def _task_of_user_in_team(
@@ -72,6 +77,9 @@ def task_of_user_in_team(
     ):
         if user.team_id != task.team_id:
             raise UserDoesNotBelongToTeamError(user, task.team_id)
+
+        if author and task.author_id != user.id:
+            raise ForbiddenError()
 
         return task
 
