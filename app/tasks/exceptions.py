@@ -59,3 +59,14 @@ class CommentDoesNotBelongToUser(Exception):
         self.user_id = user_id
         self.message = f"Comment with id {self.comment_id} does not belong to user with id {self.user_id}"
         super().__init__(self.message)
+
+
+class EvaluationDoesNotExistError(Exception):
+    """
+    Raised when an evaluation with a given id does not exist.
+    """
+
+    def __init__(self, evaluation_id: int):
+        self.evaluation_id = evaluation_id
+        self.message = f"Evaluation with id {self.evaluation_id} does not exist"
+        super().__init__(self.message)
