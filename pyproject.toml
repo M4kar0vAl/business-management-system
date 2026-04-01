@@ -62,7 +62,12 @@ ignore = [
 asyncio_mode = "auto"
 markers = [
     "unit: unit tests",
-    "integration: integration tests"
+    "integration: integration tests",
+    "teams: tests related to teams",
+    "tasks: tests related to tasks",
+    "comments: tests related to comments",
+    "auth: tests related to authentication",
+    "users: tests related to users",
 ]
 
 [tool.coverage.run]
