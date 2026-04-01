@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.models import Role, User
@@ -85,14 +85,25 @@ class TeamRepository:
         """
         user.team = team
 
-    @classmethod
-    async def remove_user_from_team(cls, user: User) -> None:
+    async def remove_user_from_team(self, user: User) -> None:
         """
-        Removes a user from their current team. Does nothing if the user is not assigned to one
+        Removes a user from their current team. Does nothing if the user is not assigned to one.
+
+        Unassigns user from tasks in their current team.
 
         :param user: user to remove from a team
         :return: None
         """
+        if not user.team:
+            return
+
+        stmt = (
+            update(Task)
+            .where(Task.team_id == user.team_id, Task.assignee_id == user.id)
+            .values(assignee_id=None)
+        )
+
+        await self.session.execute(stmt)
         user.team = None
 
     async def get_team_members(self, team: Team) -> list[User]:
