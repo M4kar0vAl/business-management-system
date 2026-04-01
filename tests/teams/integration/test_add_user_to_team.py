@@ -3,7 +3,6 @@ from fastapi import status
 
 from app.auth.models import Role
 from app.auth.schemas import UserCreate
-from app.auth.types import UserIdType
 from app.teams.routers import ADD_USER_TO_TEAM_ROUTE_NAME
 from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin
@@ -13,8 +12,8 @@ from tests.mixins import GetUrlMixin
 class TestAddUserToTeam(GetUrlMixin):
     url_name = ADD_USER_TO_TEAM_ROUTE_NAME
 
-    def get_url(self, team_id: int, user_id: UserIdType):
-        return super().get_url(team_id=team_id, user_id=user_id)
+    def get_url(self, team_id: int):
+        return super().get_url(team_id=team_id)
 
     async def test_add_user_to_team(
         self, async_client, create_user, create_team, get_authorization_header, user_db
@@ -26,7 +25,9 @@ class TestAddUserToTeam(GetUrlMixin):
         team = await create_team(TeamCreate(name="team"))
 
         response = await async_client.post(
-            self.get_url(team.id, user.id), headers=get_authorization_header(token)
+            self.get_url(team.id),
+            json={"user_email": user.email},
+            headers=get_authorization_header(token),
         )
 
         assert response.status_code == status.HTTP_200_OK
@@ -43,7 +44,9 @@ class TestAddUserToTeam(GetUrlMixin):
         )
         team = await create_team(TeamCreate(name="team"))
 
-        response = await async_client.post(self.get_url(team.id, user.id))
+        response = await async_client.post(
+            self.get_url(team.id), json={"user_email": user.email}
+        )
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
@@ -62,7 +65,9 @@ class TestAddUserToTeam(GetUrlMixin):
         team = await create_team(TeamCreate(name="team"))
 
         response = await async_client.post(
-            self.get_url(team.id, user.id), headers=get_authorization_header(token)
+            self.get_url(team.id),
+            json={"user_email": user.email},
+            headers=get_authorization_header(token),
         )
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -76,7 +81,9 @@ class TestAddUserToTeam(GetUrlMixin):
         team = await create_team(TeamCreate(name="team"))
 
         response = await async_client.post(
-            self.get_url(team.id, user.id), headers=get_authorization_header(token)
+            self.get_url(team.id),
+            json={"user_email": user.email},
+            headers=get_authorization_header(token),
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
@@ -90,7 +97,9 @@ class TestAddUserToTeam(GetUrlMixin):
         )
 
         response = await async_client.post(
-            self.get_url(0, user.id), headers=get_authorization_header(token)
+            self.get_url(0),
+            json={"user_email": user.email},
+            headers=get_authorization_header(token),
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -105,7 +114,9 @@ class TestAddUserToTeam(GetUrlMixin):
         team = await create_team(TeamCreate(name="team"))
 
         response = await async_client.post(
-            self.get_url(team.id, 0), headers=get_authorization_header(token)
+            self.get_url(team.id),
+            json={"user_email": "nonexistent@example.com"},
+            headers=get_authorization_header(token),
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
@@ -120,7 +131,9 @@ class TestAddUserToTeam(GetUrlMixin):
         team = await create_team(TeamCreate(name="team"), members=[user])
 
         response = await async_client.post(
-            self.get_url(team.id, user.id), headers=get_authorization_header(token)
+            self.get_url(team.id),
+            json={"user_email": user.email},
+            headers=get_authorization_header(token),
         )
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
