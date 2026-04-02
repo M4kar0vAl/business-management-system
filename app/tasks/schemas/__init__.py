@@ -4,7 +4,6 @@ __all__ = [
     "CommentUpdate",
     "EvaluationCreate",
     "EvaluationRead",
-    "EvaluationReadFull",
     "EvaluationUpdate",
     "EvaluationsPeriod",
     "TaskCreate",
@@ -17,7 +16,6 @@ from .comments import CommentCreate, CommentRead, CommentUpdate
 from .evaluations import (
     EvaluationCreate,
     EvaluationRead,
-    EvaluationReadFull,
     EvaluationsPeriod,
     EvaluationUpdate,
 )
