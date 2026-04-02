@@ -35,6 +35,19 @@ class EvaluationRepository:
         """
         return await self.session.get(Evaluation, evaluation_id)
 
+    async def get_by_user_and_task(self, user: User, task: Task) -> Evaluation | None:
+        """
+        Get user evaluation of the task.
+
+        :param user: user who is the author of the evaluation
+        :param task: task for which to get the evaluation
+        :return: Evaluation instance or None if it was not found
+        """
+        stmt = select(Evaluation).where(
+            Evaluation.author_id == user.id, Evaluation.task_id == task.id
+        )
+        return (await self.session.scalars(stmt)).one_or_none()
+
     async def get_evaluations_of_user_tasks(
         self, user: User, period: EvaluationsPeriod
     ) -> list[Evaluation]:
