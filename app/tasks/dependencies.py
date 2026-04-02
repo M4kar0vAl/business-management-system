@@ -10,9 +10,9 @@ from app.dependencies import UOWDep
 from app.http_exceptions import ForbiddenError
 from app.tasks.exceptions import (
     CommentDoesNotBelongToUser,
+    InvalidTaskStatusError,
 )
-from app.tasks.models import Comment
-from app.tasks.services import CommentService, TaskService
+from app.tasks.models import Comment, Evaluation, TaskStatus
 from app.tasks.services import CommentService, EvaluationService, TaskService
 from app.teams.exceptions import UserDoesNotBelongToTeamError
 
@@ -36,7 +36,6 @@ async def get_comments_service(uow: UOWDep):
 CommentServiceDep = Annotated[CommentService, Depends(get_comments_service)]
 
 
-def current_task(full: bool = False):
 async def get_evaluations_service(uow: UOWDep):
     yield EvaluationService(uow)
 
@@ -44,18 +43,26 @@ async def get_evaluations_service(uow: UOWDep):
 EvaluationServiceDep = Annotated[EvaluationService, Depends(get_evaluations_service)]
 
 
+def current_task(full: bool = False, status: TaskStatus | None = None):
     """
     Dependency factory to get task from `task_id` path parameter.
 
     :param full: boolean indicating whether to get task with all its relations
+    :param status: if not None will check that task status matches the 'status'
     :return: dependency for getting current task
     :raises TaskDoesNotExistError: if the task with the given id does not exist
+    :raises InvalidTaskStatusError: if status is True and task status does not match it
     """
 
     async def _current_task(
         task_id: Annotated[int, Path()], task_service: TaskServiceDep
     ):
-        return await task_service.get_task_by_id(task_id, full=full)
+        task = await task_service.get_task_by_id(task_id, full=full)
+
+        if status and task.status != status:
+            raise InvalidTaskStatusError(task, status)
+
+        return task
 
     return _current_task
 
@@ -64,6 +71,7 @@ def task_of_user_in_team(
     user_dep: Callable[..., User | Awaitable[User]],
     full: bool = False,
     author: bool = False,
+    status: TaskStatus | None = None,
 ):
     """
     Dependency factory to get task from `task_id` path parameter.
@@ -73,14 +81,16 @@ def task_of_user_in_team(
     :param user_dep: dependency for getting the user performing the action
     :param full: boolean indicating whether to get task with all its relations
     :param author: boolean indicating whether to check that user is the one who created the task
+    :param status: if not None will check that task status matches the 'status'
     :return: dependency for getting the current task
     :raises TaskDoesNotExistError: if the task with the given id does not exist
     :raises UserDoesNotBelongToTeamError: if the user does not belong to the team where the task is created
     :raises ForbiddenError: if author is True and the user is not an author of the task
+    :raises InvalidTaskStatusError: if status is True and task status does not match it
     """
 
     async def _task_of_user_in_team(
-        task: Annotated[Task, Depends(current_task(full=full))],
+        task: Annotated[Task, Depends(current_task(full=full, status=status))],
         user: Annotated[User, Depends(user_dep)],
     ):
         if user.team_id != task.team_id:
