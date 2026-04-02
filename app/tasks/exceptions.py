@@ -1,6 +1,6 @@
 from app.auth.models import User
 from app.auth.types import UserIdType
-from app.tasks.models import Task
+from app.tasks.models import Task, TaskStatus
 
 
 class TaskDoesNotExistError(Exception):
@@ -35,6 +35,20 @@ class UserIsNotTaskAssigneeError(Exception):
         self.user_id = user_id
         self.message = (
             f"Task {self.task} is not assigned to user with id {self.user_id}"
+        )
+        super().__init__(self.message)
+
+
+class InvalidTaskStatusError(Exception):
+    """
+    Raised when a task has an invalid status for the operation to perform.
+    """
+
+    def __init__(self, task: Task, expected_status: TaskStatus):
+        self.task = task
+        self.expected_status = expected_status
+        self.message = (
+            f"Invalid task status: {self.task.status}. Expected: {self.expected_status}"
         )
         super().__init__(self.message)
 
