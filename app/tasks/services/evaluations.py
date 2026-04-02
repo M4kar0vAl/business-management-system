@@ -36,7 +36,7 @@ class EvaluationService:
         if task.status != TaskStatus.DONE:
             raise InvalidTaskStatusError(task, TaskStatus.DONE)
 
-        if self.evaluation_repo.get_by_user_and_task(user, task):
+        if await self.evaluation_repo.get_by_user_and_task(user, task):
             raise EvaluationAlreadyExistsError(user, task)
 
         return await self.evaluation_repo.create(evaluation, user, task)
