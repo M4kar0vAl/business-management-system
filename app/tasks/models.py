@@ -96,3 +96,6 @@ class Evaluation(IdIntPkMixin, CreatedAtMixin, Base):
         CheckConstraint(value.between(1, 5), name="value_range_check"),
         UniqueConstraint("task_id", "author_id"),
     )
+
+    def __str__(self):
+        return f"Evaluation {self.id} [value = {self.value}]"
