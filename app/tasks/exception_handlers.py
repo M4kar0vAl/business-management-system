@@ -4,6 +4,7 @@ from app.tasks.exceptions import (
     CommentDoesNotBelongToUser,
     CommentDoesNotExistError,
     EvaluationAlreadyExistsError,
+    EvaluationDoesNotBelongToTaskError,
     EvaluationDoesNotExistError,
     InvalidTaskStatusError,
     TaskAlreadyAssignedError,
@@ -20,4 +21,5 @@ exception_status_mapping = {
     CommentDoesNotBelongToUser: status.HTTP_400_BAD_REQUEST,
     EvaluationDoesNotExistError: status.HTTP_404_NOT_FOUND,
     EvaluationAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
+    EvaluationDoesNotBelongToTaskError: status.HTTP_400_BAD_REQUEST,
 }
