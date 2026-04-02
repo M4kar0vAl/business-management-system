@@ -1,5 +1,6 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.auth.models import User
 from app.tasks.models import Evaluation, Task
@@ -33,7 +34,12 @@ class EvaluationRepository:
         :param evaluation_id: id of an evaluation to get
         :return: Evaluation instance or None if it was not found
         """
-        return await self.session.get(Evaluation, evaluation_id)
+        stmt = (
+            select(Evaluation)
+            .where(Evaluation.id == evaluation_id)
+            .options(joinedload(Evaluation.author))
+        )
+        return (await self.session.scalars(stmt)).one_or_none()
 
     async def get_by_user_and_task(self, user: User, task: Task) -> Evaluation | None:
         """
