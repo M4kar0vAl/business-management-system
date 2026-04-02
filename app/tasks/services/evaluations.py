@@ -1,6 +1,9 @@
 from typing import TYPE_CHECKING
 
-from app.tasks.exceptions import EvaluationDoesNotExistError
+from app.tasks.exceptions import (
+    EvaluationAlreadyExistsError,
+    EvaluationDoesNotExistError,
+)
 from app.tasks.repositories import EvaluationRepository
 from app.tasks.schemas import EvaluationCreate, EvaluationsPeriod, EvaluationUpdate
 from app.uow import UnitOfWork
@@ -25,7 +28,11 @@ class EvaluationService:
         :param user: user who is creating the evaluation
         :param task: task to evaluate
         :return: created Evaluation instance
+        :raises EvaluationAlreadyExistsError: if the user has already evaluated the task
         """
+        if self.evaluation_repo.get_by_user_and_task(user, task):
+            raise EvaluationAlreadyExistsError(user, task)
+
         return await self.evaluation_repo.create(evaluation, user, task)
 
     async def get_evaluation_by_id(self, evaluation_id: int) -> Evaluation:
