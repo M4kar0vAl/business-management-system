@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from app.tasks.exceptions import (
     EvaluationAlreadyExistsError,
     EvaluationDoesNotExistError,
+    InvalidTaskStatusError,
 )
 from app.tasks.repositories import EvaluationRepository
 from app.tasks.schemas import EvaluationCreate, EvaluationsPeriod, EvaluationUpdate
@@ -10,7 +11,7 @@ from app.uow import UnitOfWork
 
 if TYPE_CHECKING:
     from app.auth.models import User
-    from app.tasks.models import Evaluation, Task
+    from app.tasks.models import Evaluation, Task, TaskStatus
 
 
 class EvaluationService:
@@ -29,7 +30,11 @@ class EvaluationService:
         :param task: task to evaluate
         :return: created Evaluation instance
         :raises EvaluationAlreadyExistsError: if the user has already evaluated the task
+        :raises InvalidTaskStatusError: if the task does not have `TaskStatus.DONE` status
         """
+        if task.status != TaskStatus.DONE:
+            raise InvalidTaskStatusError(task, TaskStatus.DONE)
+
         if self.evaluation_repo.get_by_user_and_task(user, task):
             raise EvaluationAlreadyExistsError(user, task)
 
