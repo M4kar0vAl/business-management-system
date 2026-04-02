@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 
 from app.tasks.exceptions import (
     EvaluationAlreadyExistsError,
+    EvaluationDoesNotBelongToTaskError,
     EvaluationDoesNotExistError,
     InvalidTaskStatusError,
 )
@@ -93,17 +94,26 @@ class EvaluationService:
         :param task: task to which the evaluation belongs
         :return: updated Evaluation instance
         :raises InvalidTaskStatusError: if the task does not have `TaskStatus.DONE` status
+        :raises EvaluationDoesNotBelongToTaskError: if `task.id` and `evaluation.id` are not the same
         """
+        if task.id != evaluation.task_id:
+            raise EvaluationDoesNotBelongToTaskError(evaluation.id, task.id)
+
         if task.status != TaskStatus.DONE:
             raise InvalidTaskStatusError(task, TaskStatus.DONE)
 
         return await self.evaluation_repo.update(evaluation, update_data)
 
-    async def delete_evaluation(self, evaluation: Evaluation) -> None:
+    async def delete_evaluation(self, evaluation: Evaluation, task: Task) -> None:
         """
         Delete an evaluation.
 
         :param evaluation: evaluation to delete
+        :param task: task to which the evaluation belongs
         :return: None
+        :raises EvaluationDoesNotBelongToTaskError: if `task.id` and `evaluation.id` are not the same
         """
+        if task.id != evaluation.task_id:
+            raise EvaluationDoesNotBelongToTaskError(evaluation.id, task.id)
+
         await self.evaluation_repo.delete(evaluation)
