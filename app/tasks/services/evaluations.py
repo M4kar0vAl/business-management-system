@@ -83,14 +83,20 @@ class EvaluationService:
         self,
         evaluation: Evaluation,
         update_data: EvaluationUpdate,
+        task: Task,
     ) -> Evaluation:
         """
         Update an evaluation.
 
         :param evaluation: evaluation to update
         :param update_data: data to update the evaluation with
+        :param task: task to which the evaluation belongs
         :return: updated Evaluation instance
+        :raises InvalidTaskStatusError: if the task does not have `TaskStatus.DONE` status
         """
+        if task.status != TaskStatus.DONE:
+            raise InvalidTaskStatusError(task, TaskStatus.DONE)
+
         return await self.evaluation_repo.update(evaluation, update_data)
 
     async def delete_evaluation(self, evaluation: Evaluation) -> None:
