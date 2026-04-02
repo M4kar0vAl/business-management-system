@@ -99,3 +99,15 @@ class EvaluationAlreadyExistsError(Exception):
             f"User {self.user.email} evaluation of task {self.task.id} already exists"
         )
         super().__init__(self.message)
+
+
+class EvaluationDoesNotBelongToTaskError(Exception):
+    """
+    Raised when evaluation should belong to the specific task, but it is not.
+    """
+
+    def __init__(self, evaluation_id: int, task_id: int):
+        self.evaluation_id = evaluation_id
+        self.task_id = task_id
+        self.message = f"Evaluation with id {self.evaluation_id} does not belong to task with id {self.task_id}"
+        super().__init__(self.message)
