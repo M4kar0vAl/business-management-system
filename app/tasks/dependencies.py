@@ -13,6 +13,7 @@ from app.tasks.exceptions import (
 )
 from app.tasks.models import Comment
 from app.tasks.services import CommentService, TaskService
+from app.tasks.services import CommentService, EvaluationService, TaskService
 from app.teams.exceptions import UserDoesNotBelongToTeamError
 
 if TYPE_CHECKING:
@@ -36,6 +37,13 @@ CommentServiceDep = Annotated[CommentService, Depends(get_comments_service)]
 
 
 def current_task(full: bool = False):
+async def get_evaluations_service(uow: UOWDep):
+    yield EvaluationService(uow)
+
+
+EvaluationServiceDep = Annotated[EvaluationService, Depends(get_evaluations_service)]
+
+
     """
     Dependency factory to get task from `task_id` path parameter.
 
