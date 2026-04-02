@@ -140,3 +140,31 @@ def comment_of_current_user(user_dep: Callable[..., User | Awaitable[User]]):
         return comment
 
     return _comment_of_current_user
+
+
+def current_evaluation(
+    user_dep: Callable[..., User | Awaitable[User]], author: bool = False
+):
+    """
+    Dependency factory to get evaluation from `evaluation_id` path parameter.
+
+    :param user_dep: dependency for getting the user performing the action
+    :param author: boolean indicating whether to check that user is the one who created the evaluation
+    :return: dependency for getting the current evaluation
+    :raises EvaluationDoesNotExistError: if the evaluation with the given id does not exist
+    :raises ForbiddenError: if author is True and the user is not an author of the evaluation
+    """
+
+    async def _current_evaluation(
+        evaluation_id: Annotated[int, Path()],
+        user: Annotated[User, Depends(user_dep)],
+        evaluation_service: EvaluationServiceDep,
+    ):
+        evaluation = await evaluation_service.get_evaluation_by_id(evaluation_id)
+
+        if author and evaluation.author_id != user.id:
+            raise ForbiddenError()
+
+        return evaluation
+
+    return _current_evaluation
