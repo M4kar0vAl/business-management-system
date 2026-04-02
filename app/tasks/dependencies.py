@@ -10,6 +10,7 @@ from app.dependencies import UOWDep
 from app.http_exceptions import ForbiddenError
 from app.tasks.exceptions import (
     CommentDoesNotBelongToUser,
+    EvaluationDoesNotBelongToTaskError,
     InvalidTaskStatusError,
 )
 from app.tasks.models import Comment, Evaluation, TaskStatus
@@ -168,3 +169,36 @@ def current_evaluation(
         return evaluation
 
     return _current_evaluation
+
+
+def evaluation_of_current_task(
+    user_dep: Callable[..., User | Awaitable[User]],
+    task_dep: Callable[..., Task | Awaitable[Task]],
+    author: bool = False,
+):
+    """
+    Dependency factory to get evaluation from `evaluation_id` path parameter.
+
+    Dependency will perform validation that evaluation belongs to the task
+
+    :param user_dep: dependency for getting the user performing the action
+    :param task_dep: dependency for getting the current task
+    :param author: boolean indicating whether to check that user is the one who created the evaluation
+    :return: dependency for getting the current evaluation
+    :raises EvaluationDoesNotExistError: if the evaluation with the given id does not exist
+    :raises EvaluationDoesNotBelongToTaskError: if the evaluation does not belong to the task
+    :raises ForbiddenError: if author is True and the user is not an author of the evaluation
+    """
+
+    async def _evaluation_of_current_task(
+        task: Annotated[Task, Depends(task_dep)],
+        evaluation: Annotated[
+            Evaluation, Depends(current_evaluation(user_dep, author))
+        ],
+    ):
+        if task.id != evaluation.task_id:
+            raise EvaluationDoesNotBelongToTaskError(evaluation.id, task.id)
+
+        return evaluation
+
+    return _evaluation_of_current_task
