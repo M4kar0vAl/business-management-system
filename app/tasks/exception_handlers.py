@@ -3,6 +3,7 @@ from fastapi import status
 from app.tasks.exceptions import (
     CommentDoesNotBelongToUser,
     CommentDoesNotExistError,
+    EvaluationAlreadyExistsError,
     EvaluationDoesNotExistError,
     TaskAlreadyAssignedError,
     TaskDoesNotExistError,
@@ -16,4 +17,5 @@ exception_status_mapping = {
     CommentDoesNotExistError: status.HTTP_404_NOT_FOUND,
     CommentDoesNotBelongToUser: status.HTTP_400_BAD_REQUEST,
     EvaluationDoesNotExistError: status.HTTP_404_NOT_FOUND,
+    EvaluationAlreadyExistsError: status.HTTP_400_BAD_REQUEST,
 }
