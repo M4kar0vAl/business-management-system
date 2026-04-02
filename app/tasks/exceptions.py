@@ -1,3 +1,4 @@
+from app.auth.models import User
 from app.auth.types import UserIdType
 from app.tasks.models import Task
 
@@ -69,4 +70,18 @@ class EvaluationDoesNotExistError(Exception):
     def __init__(self, evaluation_id: int):
         self.evaluation_id = evaluation_id
         self.message = f"Evaluation with id {self.evaluation_id} does not exist"
+        super().__init__(self.message)
+
+
+class EvaluationAlreadyExistsError(Exception):
+    """
+    Raised when user evaluation of the given task already exists.
+    """
+
+    def __init__(self, user: User, task: Task):
+        self.user = user
+        self.task = task
+        self.message = (
+            f"User {self.user.email} evaluation of task {self.task.id} already exists"
+        )
         super().__init__(self.message)
