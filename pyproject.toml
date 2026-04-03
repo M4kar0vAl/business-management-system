@@ -66,6 +66,7 @@ markers = [
     "teams: tests related to teams",
     "tasks: tests related to tasks",
     "comments: tests related to comments",
+    "evaluations: tests related to evaluations",
     "auth: tests related to authentication",
     "users: tests related to users",
 ]
