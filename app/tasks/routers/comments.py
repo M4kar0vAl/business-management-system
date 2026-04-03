@@ -74,7 +74,11 @@ async def create_comment(
 @router.patch(
     "/{comment_id}",
     response_model=CommentRead,
-    responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    responses={
+        **responses.NOT_FOUND_RESPONSE,
+        **responses.BAD_REQUEST_RESPONSE,
+        **responses.FORBIDDEN_RESPONSE,
+    },
     dependencies=[Depends(current_task(current_active_user, task_team_member=True))],
     name=UPDATE_COMMENT_ROUTE_NAME,
 )
@@ -102,7 +106,11 @@ async def update_comment(
 @router.delete(
     "/{comment_id}",
     status_code=status.HTTP_204_NO_CONTENT,
-    responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
+    responses={
+        **responses.NOT_FOUND_RESPONSE,
+        **responses.BAD_REQUEST_RESPONSE,
+        **responses.FORBIDDEN_RESPONSE,
+    },
     dependencies=[Depends(current_task(current_active_user, task_team_member=True))],
     name=DELETE_COMMENT_ROUTE_NAME,
 )

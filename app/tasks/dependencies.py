@@ -9,7 +9,6 @@ from app.auth.user_manager import UserManager
 from app.dependencies import UOWDep
 from app.http_exceptions import ForbiddenError
 from app.tasks.exceptions import (
-    CommentDoesNotBelongToUser,
     EvaluationDoesNotBelongToTaskError,
     InvalidTaskStatusError,
 )
@@ -97,7 +96,7 @@ def current_comment(
     :param author: boolean indicating whether to check that user is the one who created the comment
     :return: dependency for getting the current comment
     :raises CommentDoesNotExistError: if the comment with the given id does not exist
-    :raises CommentDoesNotBelongToUser: if the user is not an author of the comment
+    :raises ForbiddenError: if the user is not an author of the comment
     """
 
     async def _current_comment(
@@ -108,7 +107,7 @@ def current_comment(
         comment = await comment_service.get_comment_by_id(comment_id)
 
         if author and comment.user_id != user.id:
-            raise CommentDoesNotBelongToUser(comment.id, user.id)
+            raise ForbiddenError()
 
         return comment
 

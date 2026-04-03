@@ -64,18 +64,6 @@ class CommentDoesNotExistError(Exception):
         super().__init__(self.message)
 
 
-class CommentDoesNotBelongToUser(Exception):
-    """
-    Raised when user is trying to manipulate a comment which was not created by them.
-    """
-
-    def __init__(self, comment_id: int, user_id: UserIdType):
-        self.comment_id = comment_id
-        self.user_id = user_id
-        self.message = f"Comment with id {self.comment_id} does not belong to user with id {self.user_id}"
-        super().__init__(self.message)
-
-
 class EvaluationDoesNotExistError(Exception):
     """
     Raised when an evaluation with a given id does not exist.
