@@ -19,7 +19,7 @@ router = APIRouter(
     responses={**responses.UNAUTHORIZED_RESPONSE},
 )
 
-router.include_router(tasks_router)
 router.include_router(comments_router)
 router.include_router(evaluations_router)
 router.include_router(user_evaluations_router)
+router.include_router(tasks_router)
