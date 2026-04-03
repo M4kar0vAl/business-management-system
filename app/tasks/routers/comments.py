@@ -7,7 +7,7 @@ from app.auth.fastapi_users_instance import current_active_user
 from app.auth.models import User
 from app.tasks.dependencies import (
     CommentServiceDep,
-    comment_of_current_user,
+    current_comment,
     current_task,
 )
 from app.tasks.models import Comment, Task
@@ -79,7 +79,9 @@ async def create_comment(
     name=UPDATE_COMMENT_ROUTE_NAME,
 )
 async def update_comment(
-    comment: Annotated[Comment, Depends(comment_of_current_user(current_active_user))],
+    comment: Annotated[
+        Comment, Depends(current_comment(current_active_user, author=True))
+    ],
     comment_update: CommentUpdate,
     comment_service: CommentServiceDep,
 ):
@@ -105,7 +107,9 @@ async def update_comment(
     name=DELETE_COMMENT_ROUTE_NAME,
 )
 async def delete_comment(
-    comment: Annotated[Comment, Depends(comment_of_current_user(current_active_user))],
+    comment: Annotated[
+        Comment, Depends(current_comment(current_active_user, author=True))
+    ],
     comment_service: CommentServiceDep,
 ):
     """

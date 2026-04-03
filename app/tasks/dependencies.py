@@ -13,7 +13,7 @@ from app.tasks.exceptions import (
     EvaluationDoesNotBelongToTaskError,
     InvalidTaskStatusError,
 )
-from app.tasks.models import Comment, Evaluation, TaskStatus
+from app.tasks.models import Evaluation, TaskStatus
 from app.tasks.services import CommentService, EvaluationService, TaskService
 from app.teams.exceptions import UserDoesNotBelongToTeamError
 
@@ -87,42 +87,32 @@ def current_task(
     return _current_task
 
 
-async def current_comment(
-    comment_id: Annotated[int, Path()], comment_service: CommentServiceDep
+def current_comment(
+    user_dep: Callable[..., User | Awaitable[User]], author: bool = False
 ):
-    """
-    Dependency to get comment from `comment_id` path parameter.
-
-    :return: Comment instance
-    :raises CommentDoesNotExistError: if the comment with the given id does not exist
-    """
-    return await comment_service.get_comment_by_id(comment_id)
-
-
-CurrentCommentDep = Annotated[Comment, Depends(current_comment)]
-
-
-def comment_of_current_user(user_dep: Callable[..., User | Awaitable[User]]):
     """
     Dependency factory to get comment from `comment_id` path parameter.
 
-    Dependency will perform validation that user is the comment author.
-
     :param user_dep: dependency for getting the user performing the action
+    :param author: boolean indicating whether to check that user is the one who created the comment
     :return: dependency for getting the current comment
     :raises CommentDoesNotExistError: if the comment with the given id does not exist
     :raises CommentDoesNotBelongToUser: if the user is not an author of the comment
     """
 
-    async def _comment_of_current_user(
-        comment: CurrentCommentDep, user: Annotated[User, Depends(user_dep)]
+    async def _current_comment(
+        comment_id: Annotated[int, Path()],
+        user: Annotated[User, Depends(user_dep)],
+        comment_service: CommentServiceDep,
     ):
-        if comment.user_id != user.id:
+        comment = await comment_service.get_comment_by_id(comment_id)
+
+        if author and comment.user_id != user.id:
             raise CommentDoesNotBelongToUser(comment.id, user.id)
 
         return comment
 
-    return _comment_of_current_user
+    return _current_comment
 
 
 def current_evaluation(
