@@ -1,3 +1,5 @@
+from datetime import UTC, datetime, timedelta
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
@@ -124,9 +126,15 @@ class EvaluationRepository:
         filters = []
 
         if period.start is not None:
-            filters.append(Evaluation.created_at >= period.start)
+            start_datetime = datetime(
+                period.start.year, period.start.month, period.start.day, tzinfo=UTC
+            )
+            filters.append(Evaluation.created_at >= start_datetime)
 
         if period.end is not None:
-            filters.append(Evaluation.created_at <= period.end)
+            end_datetime_exclusive = datetime(
+                period.end.year, period.end.month, period.end.day, tzinfo=UTC
+            ) + timedelta(days=1)
+            filters.append(Evaluation.created_at < end_datetime_exclusive)
 
         return filters
