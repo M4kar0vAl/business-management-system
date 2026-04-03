@@ -1,10 +1,10 @@
 import pytest
 
 from app.auth.models import User
-from app.tasks.models import Comment, Task
-from app.tasks.repositories import CommentRepository
-from app.tasks.schemas import CommentCreate
-from app.tasks.services import CommentService
+from app.tasks.models import Comment, Evaluation, Task
+from app.tasks.repositories import CommentRepository, EvaluationRepository
+from app.tasks.schemas import CommentCreate, EvaluationCreate
+from app.tasks.services import CommentService, EvaluationService
 
 
 @pytest.fixture
@@ -28,3 +28,28 @@ async def create_comment(comment_service):
         return created_comment
 
     return _create_comment
+
+
+@pytest.fixture
+async def evaluations_repository(session):
+    return EvaluationRepository(session)
+
+
+@pytest.fixture
+async def evaluations_service(uow):
+    return EvaluationService(uow)
+
+
+@pytest.fixture
+async def create_evaluation(evaluations_service):
+
+    async def _create_evaluation(
+        evaluation: EvaluationCreate, task: Task, author: User
+    ) -> Evaluation:
+        created_evaluation = await evaluations_service.create_evaluation(
+            evaluation, author, task
+        )
+        await evaluations_service.uow.flush()
+        return created_evaluation
+
+    return _create_evaluation
