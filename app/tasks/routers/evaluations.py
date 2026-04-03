@@ -1,9 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Query, status
 
 from app import responses
-from app.auth.fastapi_users_instance import get_current_manager
+from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
 from app.tasks.dependencies import (
     EvaluationServiceDep,
@@ -11,9 +11,44 @@ from app.tasks.dependencies import (
     task_of_user_in_team,
 )
 from app.tasks.models import Evaluation, Task, TaskStatus
-from app.tasks.schemas import EvaluationCreate, EvaluationRead, EvaluationUpdate
+from app.tasks.schemas import (
+    EvaluationCreate,
+    EvaluationRead,
+    EvaluationsPeriod,
+    EvaluationUpdate,
+)
 
-router = APIRouter(prefix="/{task_id}/evaluations", tags=["Evaluations"])
+EVALUATIONS_TAGS = ["Evaluations"]
+user_evaluations_router = APIRouter(tags=EVALUATIONS_TAGS)
+router = APIRouter(prefix="/{task_id}/evaluations", tags=EVALUATIONS_TAGS)
+
+
+@user_evaluations_router.get("/my_evaluations", response_model=list[EvaluationRead])
+async def get_user_evaluations(
+    period: Annotated[EvaluationsPeriod, Query()],
+    user: Annotated[User, Depends(current_active_user)],
+    evaluations_service: EvaluationServiceDep,
+):
+    """
+    Get evaluations of all tasks assigned to the current user.
+
+    Active users only.
+    """
+    return await evaluations_service.get_evaluations_of_user_tasks(user, period)
+
+
+@user_evaluations_router.get("/my_evaluations/average", response_model=float)
+async def get_avg_user_evaluation(
+    period: Annotated[EvaluationsPeriod, Query()],
+    user: Annotated[User, Depends(current_active_user)],
+    evaluations_service: EvaluationServiceDep,
+):
+    """
+    Get average evaluation of all tasks assigned to the current user.
+
+    Active users only.
+    """
+    return await evaluations_service.get_avg_evaluation_of_user_tasks(user, period)
 
 
 @router.post(
