@@ -25,7 +25,7 @@ class EvaluationsPeriod(BaseModel):
 
     @model_validator(mode="after")
     def check_period(self) -> Self:
-        if self.start > self.end:
+        if self.start and self.end and self.start > self.end:
             raise ValueError("Period 'start' cannot be later than 'end'")  # noqa: TRY003
 
         return self
