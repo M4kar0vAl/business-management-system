@@ -7,8 +7,8 @@ from app.auth.fastapi_users_instance import current_active_user, get_current_man
 from app.auth.models import User
 from app.tasks.dependencies import (
     EvaluationServiceDep,
+    current_task,
     evaluation_of_current_task,
-    task_of_user_in_team,
 )
 from app.tasks.models import Evaluation, Task, TaskStatus
 from app.tasks.schemas import (
@@ -82,7 +82,12 @@ async def create_evaluation(
     evaluation: EvaluationCreate,
     user: Annotated[User, Depends(get_current_manager)],
     task: Annotated[
-        Task, Depends(task_of_user_in_team(get_current_manager, status=TaskStatus.DONE))
+        Task,
+        Depends(
+            current_task(
+                get_current_manager, status=TaskStatus.DONE, task_team_member=True
+            )
+        ),
     ],
     evaluation_service: EvaluationServiceDep,
 ):
@@ -120,7 +125,9 @@ async def update_evaluation(
         Depends(
             evaluation_of_current_task(
                 get_current_manager,
-                task_of_user_in_team(get_current_manager, status=TaskStatus.DONE),
+                current_task(
+                    get_current_manager, status=TaskStatus.DONE, task_team_member=True
+                ),
                 author=True,
             )
         ),
@@ -164,7 +171,7 @@ async def delete_evaluation(
         Depends(
             evaluation_of_current_task(
                 get_current_manager,
-                task_of_user_in_team(get_current_manager),
+                current_task(get_current_manager, task_team_member=True),
                 author=True,
             )
         ),

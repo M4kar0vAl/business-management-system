@@ -44,57 +44,39 @@ async def get_evaluations_service(uow: UOWDep):
 EvaluationServiceDep = Annotated[EvaluationService, Depends(get_evaluations_service)]
 
 
-def current_task(full: bool = False, status: TaskStatus | None = None):
-    """
-    Dependency factory to get task from `task_id` path parameter.
-
-    :param full: boolean indicating whether to get task with all its relations
-    :param status: if not None will check that task status matches the 'status'
-    :return: dependency for getting current task
-    :raises TaskDoesNotExistError: if the task with the given id does not exist
-    :raises InvalidTaskStatusError: if status is True and task status does not match it
-    """
-
-    async def _current_task(
-        task_id: Annotated[int, Path()], task_service: TaskServiceDep
-    ):
-        task = await task_service.get_task_by_id(task_id, full=full)
-
-        if status and task.status != status:
-            raise InvalidTaskStatusError(task, status)
-
-        return task
-
-    return _current_task
-
-
-def task_of_user_in_team(
+def current_task(
     user_dep: Callable[..., User | Awaitable[User]],
     full: bool = False,
+    task_team_member: bool = False,
     author: bool = False,
     status: TaskStatus | None = None,
 ):
     """
     Dependency factory to get task from `task_id` path parameter.
 
-    Dependency will perform validation that user belongs to team where the task is created.
-
     :param user_dep: dependency for getting the user performing the action
     :param full: boolean indicating whether to get task with all its relations
+    :param task_team_member: boolean indicating whether to check that the user is the member of the team where the task is created
     :param author: boolean indicating whether to check that user is the one who created the task
     :param status: if not None will check that task status matches the 'status'
     :return: dependency for getting the current task
     :raises TaskDoesNotExistError: if the task with the given id does not exist
-    :raises UserDoesNotBelongToTeamError: if the user does not belong to the team where the task is created
+    :raises UserDoesNotBelongToTeamError: if task_team_member is True and the user does not belong to the team where the task is created
     :raises ForbiddenError: if author is True and the user is not an author of the task
     :raises InvalidTaskStatusError: if status is True and task status does not match it
     """
 
-    async def _task_of_user_in_team(
-        task: Annotated[Task, Depends(current_task(full=full, status=status))],
+    async def _current_task(
+        task_id: Annotated[int, Path()],
         user: Annotated[User, Depends(user_dep)],
+        task_service: TaskServiceDep,
     ):
-        if user.team_id != task.team_id:
+        task = await task_service.get_task_by_id(task_id, full=full)
+
+        if status and task.status != status:
+            raise InvalidTaskStatusError(task, status)
+
+        if task_team_member and user.team_id != task.team_id:
             raise UserDoesNotBelongToTeamError(user, task.team_id)
 
         if author and task.author_id != user.id:
@@ -102,7 +84,7 @@ def task_of_user_in_team(
 
         return task
 
-    return _task_of_user_in_team
+    return _current_task
 
 
 async def current_comment(

@@ -8,7 +8,7 @@ from app.auth.models import User
 from app.tasks.dependencies import (
     CommentServiceDep,
     comment_of_current_user,
-    task_of_user_in_team,
+    current_task,
 )
 from app.tasks.models import Comment, Task
 from app.tasks.schemas import CommentCreate, CommentRead, CommentUpdate
@@ -29,7 +29,9 @@ DELETE_COMMENT_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
     name=GET_COMMENTS_ROUTE_NAME,
 )
 async def get_comments(
-    task: Annotated[Task, Depends(task_of_user_in_team(current_active_user))],
+    task: Annotated[
+        Task, Depends(current_task(current_active_user, task_team_member=True))
+    ],
     comment_service: CommentServiceDep,
 ):
     """
@@ -51,7 +53,9 @@ async def get_comments(
 )
 async def create_comment(
     comment: CommentCreate,
-    task: Annotated[Task, Depends(task_of_user_in_team(current_active_user))],
+    task: Annotated[
+        Task, Depends(current_task(current_active_user, task_team_member=True))
+    ],
     user: Annotated[User, Depends(current_active_user)],
     comment_service: CommentServiceDep,
 ):
@@ -71,7 +75,7 @@ async def create_comment(
     "/{comment_id}",
     response_model=CommentRead,
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
-    dependencies=[Depends(task_of_user_in_team(current_active_user))],
+    dependencies=[Depends(current_task(current_active_user, task_team_member=True))],
     name=UPDATE_COMMENT_ROUTE_NAME,
 )
 async def update_comment(
@@ -97,7 +101,7 @@ async def update_comment(
     "/{comment_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     responses={**responses.NOT_FOUND_RESPONSE, **responses.BAD_REQUEST_RESPONSE},
-    dependencies=[Depends(task_of_user_in_team(current_active_user))],
+    dependencies=[Depends(current_task(current_active_user, task_team_member=True))],
     name=DELETE_COMMENT_ROUTE_NAME,
 )
 async def delete_comment(

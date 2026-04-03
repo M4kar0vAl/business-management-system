@@ -6,7 +6,7 @@ from app import responses
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
 from app.auth.types import UserIdType
-from app.tasks.dependencies import TaskServiceDep, task_of_user_in_team
+from app.tasks.dependencies import TaskServiceDep, current_task
 from app.tasks.models import Task, TaskStatus
 from app.tasks.schemas import TaskCreate, TaskRead, TaskReadFull, TaskUpdate
 
@@ -86,7 +86,8 @@ async def get_tasks_created(
 )
 async def get_task_by_id(
     task: Annotated[
-        Task, Depends(task_of_user_in_team(current_active_user, full=True))
+        Task,
+        Depends(current_task(current_active_user, full=True, task_team_member=True)),
     ],
 ):
     """
@@ -109,7 +110,8 @@ async def get_task_by_id(
 )
 async def update_task(
     task: Annotated[
-        Task, Depends(task_of_user_in_team(get_current_manager, author=True))
+        Task,
+        Depends(current_task(get_current_manager, author=True, task_team_member=True)),
     ],
     update_data: TaskUpdate,
     task_service: TaskServiceDep,
@@ -135,7 +137,8 @@ async def update_task(
 )
 async def delete_task(
     task: Annotated[
-        Task, Depends(task_of_user_in_team(get_current_manager, author=True))
+        Task,
+        Depends(current_task(get_current_manager, author=True, task_team_member=True)),
     ],
     task_service: TaskServiceDep,
 ):
@@ -163,7 +166,9 @@ async def delete_task(
     name=ASSIGN_USER_TO_TASK_ROUTE_NAME,
 )
 async def assign_user_to_task(
-    task: Annotated[Task, Depends(task_of_user_in_team(get_current_manager))],
+    task: Annotated[
+        Task, Depends(current_task(get_current_manager, task_team_member=True))
+    ],
     assignee_id: UserIdType,
     task_service: TaskServiceDep,
 ):
@@ -191,7 +196,9 @@ async def assign_user_to_task(
     name=UPDATE_TASK_STATUS_ROUTE_NAME,
 )
 async def update_task_status(
-    task: Annotated[Task, Depends(task_of_user_in_team(current_active_user))],
+    task: Annotated[
+        Task, Depends(current_task(current_active_user, task_team_member=True))
+    ],
     task_status: Annotated[TaskStatus, Body(embed=True)],
     user: Annotated[User, Depends(current_active_user)],
     task_service: TaskServiceDep,
