@@ -226,4 +226,4 @@ class TestUpdateComment(GetUrlMixin):
             headers=get_authorization_header(token),
         )
 
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response.status_code == status.HTTP_403_FORBIDDEN
