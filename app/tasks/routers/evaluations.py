@@ -97,7 +97,11 @@ async def create_evaluation(
 
     Active manager or admin only.
     """
-    return await evaluation_service.create_evaluation(evaluation, user, task)
+    created_evaluation = await evaluation_service.create_evaluation(
+        evaluation, user, task
+    )
+    await evaluation_service.uow.flush()
+    return created_evaluation
 
 
 @router.patch(
@@ -137,7 +141,11 @@ async def update_evaluation(
 
     Active manager or admin only.
     """
-    return await evaluation_service.update_evaluation(evaluation, update_data)
+    updated_evaluation = await evaluation_service.update_evaluation(
+        evaluation, update_data
+    )
+    await evaluation_service.uow.flush()
+    return updated_evaluation
 
 
 @router.delete(
