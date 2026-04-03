@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import date, datetime
 from typing import Annotated, Self
 
 from pydantic import (
@@ -12,16 +12,16 @@ from pydantic import (
 from app.auth.schemas import UserRead
 
 
-def is_datetime_not_in_future(value: datetime | None) -> datetime:
-    if value is not None and value > datetime.now(UTC):
-        raise ValueError(f"{datetime} is in future")  # noqa: TRY003
+def is_date_not_in_future(value: date | None) -> date:
+    if value is not None and value > date.today():
+        raise ValueError(f"{value} is in future")  # noqa: TRY003
 
     return value
 
 
 class EvaluationsPeriod(BaseModel):
-    start: Annotated[datetime | None, AfterValidator(is_datetime_not_in_future)] = None
-    end: datetime | None = None
+    start: Annotated[date | None, AfterValidator(is_date_not_in_future)] = None
+    end: date | None = None
 
     @model_validator(mode="after")
     def check_period(self) -> Self:
