@@ -16,7 +16,7 @@ from app.models import Base
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
-    from app.tasks.models import Comment, Task
+    from app.tasks.models import Comment, Evaluation, Task
     from app.teams.models import Team
 
 
@@ -46,6 +46,9 @@ class User(IdIntPkMixin, SQLAlchemyBaseUserTable[UserIdType], Base):
     )
     comments: Mapped[list[Comment]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
+    )
+    evaluations_as_author: Mapped[list[Evaluation]] = relationship(
+        back_populates="author", cascade="all, delete-orphan"
     )
 
     @classmethod
