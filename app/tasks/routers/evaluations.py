@@ -22,8 +22,19 @@ EVALUATIONS_TAGS = ["Evaluations"]
 user_evaluations_router = APIRouter(tags=EVALUATIONS_TAGS)
 router = APIRouter(prefix="/{task_id}/evaluations", tags=EVALUATIONS_TAGS)
 
+ROUTE_NAME_PREFIX = "evaluations"
+EVALUATION_CREATE_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:create"
+EVALUATION_UPDATE_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:update"
+EVALUATION_DELETE_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
+EVALUATION_GET_USER_EVALUATIONS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:of_user"
+EVALUATION_GET_USER_AVG_EVALUATIONS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:avg_of_user"
 
-@user_evaluations_router.get("/my_evaluations", response_model=list[EvaluationRead])
+
+@user_evaluations_router.get(
+    "/my_evaluations",
+    response_model=list[EvaluationRead],
+    name=EVALUATION_GET_USER_EVALUATIONS_ROUTE_NAME,
+)
 async def get_user_evaluations(
     period: Annotated[EvaluationsPeriod, Query()],
     user: Annotated[User, Depends(current_active_user)],
@@ -37,7 +48,11 @@ async def get_user_evaluations(
     return await evaluations_service.get_evaluations_of_user_tasks(user, period)
 
 
-@user_evaluations_router.get("/my_evaluations/average", response_model=float)
+@user_evaluations_router.get(
+    "/my_evaluations/average",
+    response_model=float,
+    name=EVALUATION_GET_USER_AVG_EVALUATIONS_ROUTE_NAME,
+)
 async def get_avg_user_evaluation(
     period: Annotated[EvaluationsPeriod, Query()],
     user: Annotated[User, Depends(current_active_user)],
@@ -61,6 +76,7 @@ async def get_avg_user_evaluation(
         **responses.NOT_FOUND_RESPONSE,
         **responses.FORBIDDEN_RESPONSE,
     },
+    name=EVALUATION_CREATE_ROUTE_NAME,
 )
 async def create_evaluation(
     evaluation: EvaluationCreate,
@@ -92,6 +108,7 @@ async def create_evaluation(
         **responses.NOT_FOUND_RESPONSE,
         **responses.FORBIDDEN_RESPONSE,
     },
+    name=EVALUATION_UPDATE_ROUTE_NAME,
 )
 async def update_evaluation(
     evaluation: Annotated[
@@ -131,6 +148,7 @@ async def update_evaluation(
         **responses.NOT_FOUND_RESPONSE,
         **responses.FORBIDDEN_RESPONSE,
     },
+    name=EVALUATION_DELETE_ROUTE_NAME,
 )
 async def delete_evaluation(
     evaluation: Annotated[
