@@ -69,7 +69,7 @@ class EvaluationRepository:
         stmt = (
             select(Evaluation)
             .join(Task, Evaluation.task_id == Task.id)
-            .where(Task.assignee_id == user.id, **filters)
+            .where(Task.assignee_id == user.id, *filters)
         )
 
         return list(await self.session.scalars(stmt))
@@ -89,7 +89,7 @@ class EvaluationRepository:
         stmt = (
             select(func.coalesce(func.avg(Evaluation.value), 0.0))
             .join(Task, Evaluation.task_id == Task.id)
-            .where(Task.assignee_id == user.id, **filters)
+            .where(Task.assignee_id == user.id, *filters)
         )
 
         return await self.session.scalar(stmt)
