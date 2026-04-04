@@ -66,7 +66,7 @@ class EvaluationRepository:
         :param filters: period within which to get the evaluations
         :return: list of evaluations
         """
-        filters_list = self._get_period_filters(filters)
+        filters_list = self._get_filters(filters)
 
         stmt = (
             select(Evaluation)
@@ -86,7 +86,7 @@ class EvaluationRepository:
         :param filters: filters to apply
         :return: average evaluation for the given period
         """
-        filters_list = self._get_period_filters(filters)
+        filters_list = self._get_filters(filters)
 
         stmt = (
             select(func.coalesce(func.avg(Evaluation.value), 0.0))
@@ -122,7 +122,7 @@ class EvaluationRepository:
         await self.session.delete(evaluation)
 
     @classmethod
-    def _get_period_filters(cls, filters: EvaluationsFilters):
+    def _get_filters(cls, filters: EvaluationsFilters):
         filters_list = []
 
         period_start = filters.start
