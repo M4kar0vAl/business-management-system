@@ -51,8 +51,10 @@ class EvaluationRepository:
         :param task: task for which to get the evaluation
         :return: Evaluation instance or None if it was not found
         """
-        stmt = select(Evaluation).where(
-            Evaluation.author_id == user.id, Evaluation.task_id == task.id
+        stmt = (
+            select(Evaluation)
+            .where(Evaluation.author_id == user.id, Evaluation.task_id == task.id)
+            .options(joinedload(Evaluation.author))
         )
         return (await self.session.scalars(stmt)).one_or_none()
 
@@ -72,6 +74,7 @@ class EvaluationRepository:
             select(Evaluation)
             .join(Task, Evaluation.task_id == Task.id)
             .where(Task.assignee_id == user.id, *filters_list)
+            .options(joinedload(Evaluation.author))
         )
 
         return list(await self.session.scalars(stmt))
