@@ -229,3 +229,68 @@ class TestGetUserEvaluations(GetUrlMixin):
         )
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
+
+    async def test_get_user_evaluations_for_task(
+        self,
+        async_client,
+        create_user,
+        create_team,
+        create_task,
+        create_evaluation,
+        get_authorization_header,
+    ):
+        user, token = await create_user(
+            UserCreate(
+                email="user@example.com",
+                password="Pass!234",
+            ),
+            authenticate=True,
+        )
+        another_user, _ = await create_user(
+            UserCreate(
+                email="user1@example.com",
+                password="Pass!234",
+            ),
+        )
+        team = await create_team(TeamCreate(name="team"), members=[user, another_user])
+        task_create = TaskCreate(
+            description="asfas",
+            deadline=self._some_deadline,
+            status=TaskStatus.DONE,
+            team_id=team.id,
+        )
+        task_assigned1 = await create_task(
+            task_create,
+            author=user,
+            assignee=user,
+        )
+        task_assigned2 = await create_task(
+            task_create,
+            author=another_user,
+            assignee=user,
+        )
+        evaluation1 = await create_evaluation(
+            EvaluationCreate(value=1), task=task_assigned1, author=another_user
+        )
+        evaluation2 = await create_evaluation(
+            EvaluationCreate(value=2), task=task_assigned2, author=another_user
+        )
+
+        response = await async_client.get(
+            self.get_url(),
+            params={"task_id": task_assigned1.id},
+            headers=get_authorization_header(token),
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+
+        data = response.json()
+
+        assert (
+            json.loads(EvaluationRead.model_validate(evaluation1).model_dump_json())
+            in data
+        )
+        assert (
+            json.loads(EvaluationRead.model_validate(evaluation2).model_dump_json())
+            not in data
+        )
