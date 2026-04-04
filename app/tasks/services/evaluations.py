@@ -76,6 +76,18 @@ class EvaluationService:
             user, filters
         )
 
+    async def get_user_evaluation_of_task(
+        self, user: User, task: Task
+    ) -> Evaluation | None:
+        """
+        Get user evaluation of the task.
+
+        :param user: user who is the author of the evaluation
+        :param task: task for which to get the evaluation
+        :return: Evaluation instance or None if it was not found
+        """
+        return await self.evaluation_repo.get_by_user_and_task(user, task)
+
     async def update_evaluation(
         self,
         evaluation: Evaluation,
