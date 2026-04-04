@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from fastapi.security import OAuth2PasswordRequestForm
 from sqladmin.authentication import AuthenticationBackend
 
-from app.auth.backend import authentication_backend
+from app.auth.backend import auth_bearer_db_backend
 from app.auth.models import AccessToken, User
 from app.auth.user_manager import UserManager
 from app.config import settings
@@ -90,7 +90,7 @@ class AdminAuth(AuthenticationBackend):
     @classmethod
     def _get_strategy(cls, session: AsyncSession):
         access_token_db = AccessToken.get_db(session)
-        return authentication_backend.get_strategy(access_token_db)
+        return auth_bearer_db_backend.get_strategy(access_token_db)
 
     async def _read_token(self, session: AsyncSession, token: str) -> User | None:
         user_manager = self._get_user_manager(session)

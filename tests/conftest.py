@@ -7,7 +7,7 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import URL, NullPool
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
-from app.auth.backend import authentication_backend
+from app.auth.backend import auth_bearer_db_backend
 from app.auth.models import AccessToken, User
 from app.auth.schemas import UserCreate
 from app.auth.user_manager import UserManager
@@ -161,7 +161,7 @@ async def authenticate_user(access_token_db, user_manager):
 
         assert user is not None, f"Could not authenticate user {email}"
 
-        strategy = authentication_backend.get_strategy(access_token_db)
+        strategy = auth_bearer_db_backend.get_strategy(access_token_db)
         token = await strategy.write_token(user)
 
         return user, token

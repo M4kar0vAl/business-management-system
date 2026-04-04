@@ -1,12 +1,12 @@
 from fastapi import status
 
-from app.auth.backend import authentication_backend
+from app.auth.backend import auth_bearer_db_backend
 from app.auth.schemas import UserCreate
 from tests.mixins import GetUrlMixin
 
 
 class TestLogin(GetUrlMixin):
-    url_name = f"auth:{authentication_backend.name}.login"
+    url_name = f"auth:{auth_bearer_db_backend.name}.login"
 
     async def test_login(self, async_client, create_user, access_token_db):
         password = "Pass!234"

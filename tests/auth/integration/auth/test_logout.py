@@ -1,12 +1,12 @@
 from fastapi import status
 
-from app.auth.backend import authentication_backend
+from app.auth.backend import auth_bearer_db_backend
 from app.auth.schemas import UserCreate
 from tests.mixins import GetUrlMixin
 
 
 class TestLogout(GetUrlMixin):
-    url_name = f"auth:{authentication_backend.name}.logout"
+    url_name = f"auth:{auth_bearer_db_backend.name}.logout"
 
     async def test_logout(
         self, async_client, create_user, access_token_db, get_authorization_header

@@ -4,14 +4,14 @@ from fastapi import Depends
 from fastapi_users import FastAPIUsers
 
 from ..http_exceptions import ForbiddenError
-from .backend import authentication_backend
+from .backend import auth_bearer_db_backend, auth_cookie_db_backend
 from .dependencies import get_user_manager
 from .models import Role, User
 from .types import UserIdType
 
 fastapi_users_instance = FastAPIUsers[User, UserIdType](
     get_user_manager,
-    [authentication_backend],
+    [auth_bearer_db_backend, auth_cookie_db_backend],
 )
 
 
