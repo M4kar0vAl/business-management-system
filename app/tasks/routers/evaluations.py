@@ -28,6 +28,7 @@ EVALUATION_UPDATE_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:update"
 EVALUATION_DELETE_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
 EVALUATION_GET_USER_EVALUATIONS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:of_user"
 EVALUATION_GET_USER_AVG_EVALUATIONS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:avg_of_user"
+EVALUATION_GET_OF_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:my_of_task"
 
 
 @user_evaluations_router.get(
@@ -64,6 +65,35 @@ async def get_avg_user_evaluation(
     Active users only.
     """
     return await evaluations_service.get_avg_evaluation_of_user_tasks(user, filters)
+
+
+@router.get(
+    "/my",
+    response_model=EvaluationRead | None,
+    responses={
+        **responses.BAD_REQUEST_RESPONSE,
+        **responses.NOT_FOUND_RESPONSE,
+        **responses.FORBIDDEN_RESPONSE,
+    },
+    name=EVALUATION_GET_OF_TASK_ROUTE_NAME,
+)
+async def get_user_evaluation_of_current_task(
+    user: Annotated[User, Depends(get_current_manager)],
+    task: Annotated[
+        Task, Depends(current_task(get_current_manager, task_team_member=True))
+    ],
+    evaluations_service: EvaluationServiceDep,
+):
+    """
+    Get user evaluation of the current task.
+
+    In order to get evaluation of current task:
+    - current user must be a member of a team where the task is created
+    - task with id `task_id` must exist
+
+    Active manager or admin only.
+    """
+    return await evaluations_service.get_user_evaluation_of_task(user, task)
 
 
 @router.post(
