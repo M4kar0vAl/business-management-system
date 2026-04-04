@@ -5,7 +5,7 @@ __all__ = [
     "EvaluationCreate",
     "EvaluationRead",
     "EvaluationUpdate",
-    "EvaluationsPeriod",
+    "EvaluationsFilters",
     "TaskCreate",
     "TaskRead",
     "TaskReadFull",
@@ -16,7 +16,7 @@ from .comments import CommentCreate, CommentRead, CommentUpdate
 from .evaluations import (
     EvaluationCreate,
     EvaluationRead,
-    EvaluationsPeriod,
+    EvaluationsFilters,
     EvaluationUpdate,
 )
 from .tasks import TaskCreate, TaskRead, TaskReadFull, TaskUpdate

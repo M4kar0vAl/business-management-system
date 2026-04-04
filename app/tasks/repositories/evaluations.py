@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload
 
 from app.auth.models import User
 from app.tasks.models import Evaluation, Task
-from app.tasks.schemas import EvaluationCreate, EvaluationsPeriod, EvaluationUpdate
+from app.tasks.schemas import EvaluationCreate, EvaluationsFilters, EvaluationUpdate
 
 
 class EvaluationRepository:
@@ -57,41 +57,41 @@ class EvaluationRepository:
         return (await self.session.scalars(stmt)).one_or_none()
 
     async def get_evaluations_of_user_tasks(
-        self, user: User, period: EvaluationsPeriod
+        self, user: User, filters: EvaluationsFilters
     ) -> list[Evaluation]:
         """
         Get evaluations of all tasks of the user where they are the assignee.
 
         :param user: user to get evaluations for
-        :param period: period within which to get the evaluations
+        :param filters: period within which to get the evaluations
         :return: list of evaluations
         """
-        filters = self._get_period_filters(period)
+        filters_list = self._get_period_filters(filters)
 
         stmt = (
             select(Evaluation)
             .join(Task, Evaluation.task_id == Task.id)
-            .where(Task.assignee_id == user.id, *filters)
+            .where(Task.assignee_id == user.id, *filters_list)
         )
 
         return list(await self.session.scalars(stmt))
 
     async def get_avg_evaluation_of_user_tasks(
-        self, user: User, period: EvaluationsPeriod
+        self, user: User, filters: EvaluationsFilters
     ) -> float:
         """
         Get average value of evaluations of tasks of the user where they are the assignee.
 
         :param user: user to get average evaluation for
-        :param period: period within which to consider the evaluations
+        :param filters: filters to apply
         :return: average evaluation for the given period
         """
-        filters = self._get_period_filters(period)
+        filters_list = self._get_period_filters(filters)
 
         stmt = (
             select(func.coalesce(func.avg(Evaluation.value), 0.0))
             .join(Task, Evaluation.task_id == Task.id)
-            .where(Task.assignee_id == user.id, *filters)
+            .where(Task.assignee_id == user.id, *filters_list)
         )
 
         return await self.session.scalar(stmt)
@@ -122,19 +122,25 @@ class EvaluationRepository:
         await self.session.delete(evaluation)
 
     @classmethod
-    def _get_period_filters(cls, period: EvaluationsPeriod):
-        filters = []
+    def _get_period_filters(cls, filters: EvaluationsFilters):
+        filters_list = []
 
-        if period.start is not None:
+        period_start = filters.start
+        if period_start is not None:
             start_datetime = datetime(
-                period.start.year, period.start.month, period.start.day, tzinfo=UTC
+                period_start.year, period_start.month, period_start.day, tzinfo=UTC
             )
-            filters.append(Evaluation.created_at >= start_datetime)
+            filters_list.append(Evaluation.created_at >= start_datetime)
 
-        if period.end is not None:
+        period_end = filters.end
+        if period_end is not None:
             end_datetime_exclusive = datetime(
-                period.end.year, period.end.month, period.end.day, tzinfo=UTC
+                period_end.year, period_end.month, period_end.day, tzinfo=UTC
             ) + timedelta(days=1)
-            filters.append(Evaluation.created_at < end_datetime_exclusive)
+            filters_list.append(Evaluation.created_at < end_datetime_exclusive)
 
-        return filters
+        task_id = filters.task_id
+        if task_id is not None:
+            filters_list.append(Evaluation.task_id == task_id)
+
+        return filters_list

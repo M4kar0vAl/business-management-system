@@ -5,7 +5,7 @@ from app.tasks.exceptions import (
     EvaluationDoesNotExistError,
 )
 from app.tasks.repositories import EvaluationRepository
-from app.tasks.schemas import EvaluationCreate, EvaluationsPeriod, EvaluationUpdate
+from app.tasks.schemas import EvaluationCreate, EvaluationsFilters, EvaluationUpdate
 from app.uow import UnitOfWork
 
 if TYPE_CHECKING:
@@ -51,28 +51,30 @@ class EvaluationService:
         return evaluation
 
     async def get_evaluations_of_user_tasks(
-        self, user: User, period: EvaluationsPeriod
+        self, user: User, filters: EvaluationsFilters
     ) -> list[Evaluation]:
         """
         Get evaluations of all tasks of the user where they are the assignee.
 
         :param user: user to get evaluations for
-        :param period: period within which to get the evaluations
+        :param filters: filters to apply
         :return: list of evaluations
         """
-        return await self.evaluation_repo.get_evaluations_of_user_tasks(user, period)
+        return await self.evaluation_repo.get_evaluations_of_user_tasks(user, filters)
 
     async def get_avg_evaluation_of_user_tasks(
-        self, user: User, period: EvaluationsPeriod
+        self, user: User, filters: EvaluationsFilters
     ) -> float:
         """
         Get average value of evaluations of tasks of the user where they are the assignee.
 
         :param user: user to get average evaluation for
-        :param period: period within which to consider the evaluations
+        :param filters: filters to apply
         :return: average evaluation for the given period
         """
-        return await self.evaluation_repo.get_avg_evaluation_of_user_tasks(user, period)
+        return await self.evaluation_repo.get_avg_evaluation_of_user_tasks(
+            user, filters
+        )
 
     async def update_evaluation(
         self,

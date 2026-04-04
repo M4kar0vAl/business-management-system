@@ -14,7 +14,7 @@ from app.tasks.models import Evaluation, Task, TaskStatus
 from app.tasks.schemas import (
     EvaluationCreate,
     EvaluationRead,
-    EvaluationsPeriod,
+    EvaluationsFilters,
     EvaluationUpdate,
 )
 
@@ -36,7 +36,7 @@ EVALUATION_GET_USER_AVG_EVALUATIONS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:avg_of_us
     name=EVALUATION_GET_USER_EVALUATIONS_ROUTE_NAME,
 )
 async def get_user_evaluations(
-    period: Annotated[EvaluationsPeriod, Query()],
+    filters: Annotated[EvaluationsFilters, Query()],
     user: Annotated[User, Depends(current_active_user)],
     evaluations_service: EvaluationServiceDep,
 ):
@@ -45,7 +45,7 @@ async def get_user_evaluations(
 
     Active users only.
     """
-    return await evaluations_service.get_evaluations_of_user_tasks(user, period)
+    return await evaluations_service.get_evaluations_of_user_tasks(user, filters)
 
 
 @user_evaluations_router.get(
@@ -54,7 +54,7 @@ async def get_user_evaluations(
     name=EVALUATION_GET_USER_AVG_EVALUATIONS_ROUTE_NAME,
 )
 async def get_avg_user_evaluation(
-    period: Annotated[EvaluationsPeriod, Query()],
+    filters: Annotated[EvaluationsFilters, Query()],
     user: Annotated[User, Depends(current_active_user)],
     evaluations_service: EvaluationServiceDep,
 ):
@@ -63,7 +63,7 @@ async def get_avg_user_evaluation(
 
     Active users only.
     """
-    return await evaluations_service.get_avg_evaluation_of_user_tasks(user, period)
+    return await evaluations_service.get_avg_evaluation_of_user_tasks(user, filters)
 
 
 @router.post(
