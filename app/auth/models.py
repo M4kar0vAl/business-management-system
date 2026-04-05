@@ -10,12 +10,14 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.auth.types import UserIdType
+from app.meetings.models import meeting_participants
 from app.mixins import IdIntPkMixin
 from app.models import Base
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
 
+    from app.meetings.models import Meeting
     from app.tasks.models import Comment, Evaluation, Task
     from app.teams.models import Team
 
@@ -49,6 +51,16 @@ class User(IdIntPkMixin, SQLAlchemyBaseUserTable[UserIdType], Base):
     )
     evaluations_as_author: Mapped[list[Evaluation]] = relationship(
         back_populates="author", cascade="all, delete-orphan"
+    )
+    created_meetings: Mapped[list[Meeting]] = relationship(
+        back_populates="created_by",
+        foreign_keys="[Meeting.created_by_id]",
+        cascade="all, delete-orphan",
+    )
+    meetings: Mapped[list[Meeting]] = relationship(
+        back_populates="participants",
+        secondary=meeting_participants,
+        passive_deletes=True,
     )
 
     @classmethod

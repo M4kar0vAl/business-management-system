@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from app.auth import models as auth_models  # noqa: F401
 from app.config import settings
+from app.meetings import models as meetings_models  # noqa: F401
 from app.models import Base
 from app.tasks import models as tasks_models  # noqa: F401
 from app.teams import models as teams_models  # noqa: F401
