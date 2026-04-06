@@ -2,7 +2,7 @@ from contextlib import suppress
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING
 
-from sqlalchemy import select
+from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
@@ -107,6 +107,13 @@ class MeetingRepository:
         """
         with suppress(ValueError):
             meeting.participants.remove(user)
+
+    async def is_overlapping(self, start: datetime, end: datetime) -> bool:
+        start, end = start.astimezone(UTC), end.astimezone(UTC)
+        overlapping_exists_stmt = exists().where(
+            Meeting.start_time < end, Meeting.end_time > start
+        )
+        return bool(await self.session.scalar(select(overlapping_exists_stmt)))
 
     @classmethod
     def _get_filters(cls, filters: MeetingFilters) -> list:
