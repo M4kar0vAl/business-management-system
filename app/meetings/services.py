@@ -72,7 +72,7 @@ class MeetingService:
         """
         return await self.meetings_repo.get_user_meetings(user, filters)
 
-    async def delete(self, meeting: Meeting) -> None:
+    async def delete_meeting(self, meeting: Meeting) -> None:
         """
         Delete a meeting.
 
