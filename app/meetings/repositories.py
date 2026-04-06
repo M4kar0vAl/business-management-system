@@ -109,6 +109,13 @@ class MeetingRepository:
             meeting.participants.remove(user)
 
     async def is_overlapping(self, start: datetime, end: datetime) -> bool:
+        """
+        Check whether a meeting is overlapping with another one.
+
+        :param start: start time of the meeting
+        :param end: end time of the meeting
+        :return: True if the meeting is overlapping, False otherwise
+        """
         start, end = start.astimezone(UTC), end.astimezone(UTC)
         overlapping_exists_stmt = exists().where(
             Meeting.start_time < end, Meeting.end_time > start
