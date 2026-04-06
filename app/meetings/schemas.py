@@ -3,6 +3,11 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from app.auth.schemas import UserRead
+from app.schemas import PeriodFilters
+
+
+class MeetingFilters(PeriodFilters):
+    pass
 
 
 class MeetingBase(BaseModel):
