@@ -4,6 +4,9 @@ from fastapi.responses import JSONResponse
 from app.auth.exception_handlers import (
     exception_status_mapping as auth_exception_status_mapping,
 )
+from app.meetings.exception_handlers import (
+    exception_status_mapping as meetings_exception_status_mapping,
+)
 from app.tasks.exception_handlers import (
     exception_status_mapping as tasks_exception_status_mapping,
 )
@@ -57,3 +60,4 @@ def register_exception_handlers(app: FastAPI) -> None:
     register_exception_handlers_from_mapping(app, auth_exception_status_mapping)
     register_exception_handlers_from_mapping(app, teams_exception_status_mapping)
     register_exception_handlers_from_mapping(app, tasks_exception_status_mapping)
+    register_exception_handlers_from_mapping(app, meetings_exception_status_mapping)
