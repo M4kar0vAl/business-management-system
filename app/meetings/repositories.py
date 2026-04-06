@@ -115,6 +115,21 @@ class MeetingRepository:
         )
         return bool(await self.session.scalar(select(overlapping_exists_stmt)))
 
+    async def is_participant(self, meeting: Meeting, user: User) -> bool:
+        """
+        Check whether user is a participant of the meeting.
+
+        :param meeting: meeting against which to check participance
+        :param user: user to check for participance in the meeting
+        :return: True if the user is participant of the meeting, False otherwise
+        """
+        is_meeting_participant_stmt = exists().where(
+            Meeting.id == meeting.id,
+            Meeting.participants.any(User.id == user.id),
+        )
+
+        return bool(await self.session.scalar(select(is_meeting_participant_stmt)))
+
     @classmethod
     def _get_filters(cls, filters: MeetingFilters) -> list:
         filters_list = []
