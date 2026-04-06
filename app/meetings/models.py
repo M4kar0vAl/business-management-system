@@ -40,3 +40,6 @@ class Meeting(IdIntPkMixin, Base):
     __table_args__ = (
         CheckConstraint("end_time > start_time", name="check_end_after_start"),
     )
+
+    def __str__(self):
+        return f"Meeting [{self.start_time} - {self.end_time}]"
