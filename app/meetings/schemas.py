@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from app.auth.schemas import UserRead
 from app.schemas import PeriodFilters
@@ -20,6 +20,8 @@ class MeetingCreate(MeetingBase):
 
 
 class MeetingRead(MeetingBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_by: UserRead
 
