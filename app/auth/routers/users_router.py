@@ -6,8 +6,10 @@ from app import responses
 from app.auth.dependencies import get_user_manager
 from app.auth.fastapi_users_instance import fastapi_users_instance, get_current_admin
 from app.auth.schemas import UserRead, UserUpdate
+from app.auth.services import list_users
 from app.auth.types import UserIdType
 from app.auth.user_manager import UserManager
+from app.dependencies import UOWDep
 
 fastapi_users_router = fastapi_users_instance.get_users_router(UserRead, UserUpdate)
 DELETE_USER_ROUTE_NAME = "users:delete_user"
@@ -22,7 +24,9 @@ fastapi_users_router_without_delete = APIRouter(
     ]
 )
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(
+    prefix="/users", tags=["Users"], responses={**responses.UNAUTHORIZED_RESPONSE}
+)
 router.include_router(fastapi_users_router_without_delete)
 
 
@@ -32,7 +36,6 @@ router.include_router(fastapi_users_router_without_delete)
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[Depends(get_current_admin)],
     responses={
-        **responses.UNAUTHORIZED_RESPONSE,
         **responses.FORBIDDEN_RESPONSE,
         **responses.NOT_FOUND_RESPONSE,
     },
@@ -54,3 +57,18 @@ async def delete_user(
     user_to_delete = await user_manager.get(user_id)
 
     await user_manager.delete(user_to_delete, request)
+
+
+@router.get(
+    "/",
+    response_model=list[UserRead],
+    dependencies=[Depends(get_current_admin)],
+    responses={**responses.FORBIDDEN_RESPONSE},
+)
+async def get_users(uow: UOWDep):
+    """
+    Get all users
+
+    Active admin or superuser only.
+    """
+    return await list_users(uow.session)
