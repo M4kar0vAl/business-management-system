@@ -18,6 +18,9 @@ fastapi_users_instance = FastAPIUsers[User, UserIdType](
 # placed these dependencies here,
 # because moving them into dependencies package will cause circular import
 current_active_user = fastapi_users_instance.current_user(active=True)
+current_active_user_or_none = fastapi_users_instance.current_user(
+    optional=True, active=True
+)
 current_active_superuser = fastapi_users_instance.current_user(
     active=True, superuser=True
 )
