@@ -5,12 +5,9 @@ from fastapi import FastAPI
 
 from app.admin import register_admin_views
 from app.auth.actions import create_user
-from app.auth.routers import auth_router, users_router
 from app.config import settings
 from app.exception_handlers import register_exception_handlers
-from app.meetings.routers import router as meetings_router
-from app.tasks.routers import router as tasks_router
-from app.teams.routers import router as teams_router
+from app.routers import api_router, web_router
 
 log = logging.getLogger(__file__)
 
@@ -31,11 +28,8 @@ async def lifespan(app: FastAPI):  # noqa: ARG001
 
 app = FastAPI(lifespan=lifespan)
 
-app.include_router(auth_router)
-app.include_router(users_router)
-app.include_router(teams_router)
-app.include_router(tasks_router)
-app.include_router(meetings_router)
+app.include_router(api_router)
+app.include_router(web_router)
 
 register_admin_views(app)
 register_exception_handlers(app)
