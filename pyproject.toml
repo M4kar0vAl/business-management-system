@@ -69,6 +69,7 @@ markers = [
     "evaluations: tests related to evaluations",
     "auth: tests related to authentication",
     "users: tests related to users",
+    "meetings: tests related to meetings",
 ]
 
 [tool.coverage.run]

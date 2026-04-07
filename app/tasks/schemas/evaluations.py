@@ -1,35 +1,18 @@
-from datetime import date, datetime
-from typing import Annotated, Self
+from datetime import datetime
+from typing import Annotated
 
 from pydantic import (
-    AfterValidator,
     BaseModel,
     ConfigDict,
     Field,
-    model_validator,
 )
 
 from app.auth.schemas import UserRead
+from app.schemas import PeriodFilters
 
 
-def is_date_not_in_future(value: date | None) -> date:
-    if value is not None and value > date.today():
-        raise ValueError(f"{value} is in future")  # noqa: TRY003
-
-    return value
-
-
-class EvaluationsFilters(BaseModel):
-    start: Annotated[date | None, AfterValidator(is_date_not_in_future)] = None
-    end: date | None = None
+class EvaluationsFilters(PeriodFilters):
     task_id: Annotated[int | None, Field(ge=1)] = None
-
-    @model_validator(mode="after")
-    def check_period(self) -> Self:
-        if self.start and self.end and self.start > self.end:
-            raise ValueError("Period 'start' cannot be later than 'end'")  # noqa: TRY003
-
-        return self
 
 
 class EvaluationBase(BaseModel):
