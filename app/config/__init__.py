@@ -8,6 +8,7 @@ from .db import DatabaseConfig
 from .users import UserConfig
 
 BASE_DIR = Path(__file__).parent.parent.parent
+TEMPLATES_DIR = BASE_DIR / "templates"
 
 
 class Settings(BaseSettings):
