@@ -17,14 +17,15 @@ class MeetingRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, meeting: MeetingCreate) -> Meeting:
+    async def create(self, meeting: MeetingCreate, user: User) -> Meeting:
         """
         Create a new meeting.
 
         :param meeting: data to create meeting with
+        :param user: user who is creating the meeting
         :return: created Meeting instance
         """
-        db_meeting = Meeting(**meeting.model_dump())
+        db_meeting = Meeting(**meeting.model_dump(), created_by=user)
         self.session.add(db_meeting)
         return db_meeting
 
