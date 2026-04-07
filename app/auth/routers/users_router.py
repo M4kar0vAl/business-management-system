@@ -12,7 +12,10 @@ from app.auth.user_manager import UserManager
 from app.dependencies import UOWDep
 
 fastapi_users_router = fastapi_users_instance.get_users_router(UserRead, UserUpdate)
-DELETE_USER_ROUTE_NAME = "users:delete_user"
+
+ROUTE_NAME_PREFIX = "users"
+DELETE_USER_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete_user"
+GET_USERS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:list"
 
 # When using routes param directly, prefix and tags (and maybe smth else) are not applied.
 # Exclude DELETE /users/{id} route because its permissions do not suit
@@ -64,6 +67,7 @@ async def delete_user(
     response_model=list[UserRead],
     dependencies=[Depends(get_current_admin)],
     responses={**responses.FORBIDDEN_RESPONSE},
+    name=GET_USERS_ROUTE_NAME,
 )
 async def get_users(uow: UOWDep):
     """
