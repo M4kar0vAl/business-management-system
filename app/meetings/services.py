@@ -20,11 +20,12 @@ class MeetingService:
         self.meetings_repo = MeetingRepository(self.uow.session)
         self.user_manager = user_manager
 
-    async def create_meeting(self, meeting: MeetingCreate) -> Meeting:
+    async def create_meeting(self, meeting: MeetingCreate, user: User) -> Meeting:
         """
         Create a new meeting.
 
         :param meeting: data to create meeting with
+        :param user: user who is creating the meeting
         :return: created Meeting instance
         :raises OverlappingMeetingError: if the meeting time overlaps with another meeting
         """
@@ -33,7 +34,7 @@ class MeetingService:
         ):
             raise OverlappingMeetingError(meeting.start_time, meeting.end_time)
 
-        return await self.meetings_repo.create(meeting)
+        return await self.meetings_repo.create(meeting, user)
 
     async def get_meeting_by_id(self, meeting_id: int, full: bool = False) -> Meeting:
         """
