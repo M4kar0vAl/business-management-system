@@ -1,4 +1,3 @@
-from contextlib import suppress
 from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import exists, select
@@ -95,8 +94,7 @@ class MeetingRepository:
             meeting_participants.insert().values(meeting_id=meeting.id, user_id=user.id)
         )
 
-    @classmethod
-    async def remove_participant(cls, meeting: Meeting, user: User) -> None:
+    async def remove_participant(self, meeting: Meeting, user: User) -> None:
         """
         Remove a participant from a meeting.
 
@@ -104,8 +102,12 @@ class MeetingRepository:
         :param user: user to remove from the meeting
         :return: None
         """
-        with suppress(ValueError):
-            meeting.participants.remove(user)
+        await self.session.execute(
+            meeting_participants.delete().where(
+                meeting_participants.c.meeting_id == meeting.id,
+                meeting_participants.c.user_id == user.id,
+            )
+        )
 
     async def is_overlapping(self, start: datetime, end: datetime) -> bool:
         """
