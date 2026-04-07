@@ -1,16 +1,13 @@
 from contextlib import suppress
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING
 
 from sqlalchemy import exists, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload, selectinload
 
-from app.meetings.models import Meeting
+from app.auth.models import User
+from app.meetings.models import Meeting, meeting_participants
 from app.meetings.schemas import MeetingCreate, MeetingFilters
-
-if TYPE_CHECKING:
-    from app.auth.models import User
 
 
 class MeetingRepository:
@@ -86,8 +83,7 @@ class MeetingRepository:
         """
         await self.session.delete(meeting)
 
-    @classmethod
-    async def add_participant(cls, meeting: Meeting, user: User) -> None:
+    async def add_participant(self, meeting: Meeting, user: User) -> None:
         """
         Add a participant to a meeting.
 
@@ -95,7 +91,9 @@ class MeetingRepository:
         :param user: user to add to the meeting
         :return: None
         """
-        meeting.participants.append(user)
+        await self.session.execute(
+            meeting_participants.insert().values(meeting_id=meeting.id, user_id=user.id)
+        )
 
     @classmethod
     async def remove_participant(cls, meeting: Meeting, user: User) -> None:
