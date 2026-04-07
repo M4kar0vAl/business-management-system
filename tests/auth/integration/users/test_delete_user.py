@@ -1,23 +1,23 @@
 from fastapi import status
 
+from app.auth.models import Role
+from app.auth.routers.users_router import DELETE_USER_ROUTE_NAME
 from app.auth.schemas import UserCreate
 from app.auth.types import UserIdType
 from tests.mixins import GetUrlMixin
 
 
 class TestDeleteUser(GetUrlMixin):
-    url_name = "users:delete_user"
+    url_name = DELETE_USER_ROUTE_NAME
 
     def get_url(self, user_id: UserIdType):
-        return super().get_url(id=user_id)
+        return super().get_url(user_id=user_id)
 
     async def test_delete_user(
         self, async_client, create_user, get_authorization_header, user_db
     ):
         user, token = await create_user(
-            UserCreate(
-                email="user@example.com", password="Pass!234", is_superuser=True
-            ),
+            UserCreate(email="user@example.com", password="Pass!234", role=Role.ADMIN),
             authenticate=True,
         )
         another_user, _ = await create_user(
@@ -47,7 +47,7 @@ class TestDeleteUser(GetUrlMixin):
 
     async def test_delete_user_unauthenticated(self, async_client, create_user):
         user, _ = await create_user(
-            UserCreate(email="user@example.com", password="Pass!234", is_superuser=True)
+            UserCreate(email="user@example.com", password="Pass!234", role=Role.ADMIN)
         )
 
         response = await async_client.delete(self.get_url(user.id))
@@ -61,7 +61,7 @@ class TestDeleteUser(GetUrlMixin):
             UserCreate(
                 email="user@example.com",
                 password="Pass!234",
-                is_superuser=True,
+                role=Role.ADMIN,
                 is_active=False,
             ),
             authenticate=True,
@@ -73,7 +73,7 @@ class TestDeleteUser(GetUrlMixin):
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
-    async def test_delete_user_not_a_superuser(
+    async def test_delete_user_not_an_admin(
         self, async_client, create_user, get_authorization_header
     ):
         user, token = await create_user(
@@ -90,9 +90,7 @@ class TestDeleteUser(GetUrlMixin):
         self, async_client, create_user, get_authorization_header
     ):
         _, token = await create_user(
-            UserCreate(
-                email="user@example.com", password="Pass!234", is_superuser=True
-            ),
+            UserCreate(email="user@example.com", password="Pass!234", role=Role.ADMIN),
             authenticate=True,
         )
 
