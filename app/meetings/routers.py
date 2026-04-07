@@ -52,11 +52,14 @@ async def get_meetings(
     "/",
     status_code=status.HTTP_201_CREATED,
     response_model=MeetingRead,
-    dependencies=[Depends(get_current_manager)],
     responses={**responses.BAD_REQUEST_RESPONSE},
     name=CREATE_MEETING_ROUTE_NAME,
 )
-async def create_meeting(meeting: MeetingCreate, meetings_service: MeetingServiceDep):
+async def create_meeting(
+    meeting: MeetingCreate,
+    user: Annotated[User, Depends(get_current_manager)],
+    meetings_service: MeetingServiceDep,
+):
     """
     Create a new meeting.
 
@@ -65,7 +68,7 @@ async def create_meeting(meeting: MeetingCreate, meetings_service: MeetingServic
 
     Active manager or admin only.
     """
-    created_meeting = await meetings_service.create_meeting(meeting)
+    created_meeting = await meetings_service.create_meeting(meeting, user)
     await meetings_service.uow.flush()
     return created_meeting
 
