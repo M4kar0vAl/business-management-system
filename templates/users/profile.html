@@ -6,6 +6,26 @@
 
 {% block content %}
     <h1>Profile</h1>
-    <p>Email: {{ current_user.email }}</p>
-    <p>Role: {{ current_user.role }}</p>
+    {% set action_url = url_for('profile:update') %}
+    <form action="{{ action_url }}" method="post">
+        <p>
+            <label for="email">Email:</label>
+            <input id="email" type="email" name="email" value="{{ current_user.email }}" />
+        </p>
+        <p>
+            <label for="role">Role:</label>
+            <input id="role" type="text" name="role" value="{{ current_user.role }}" disabled readonly />
+        </p>
+        <button type="submit">Save changes</button>
+    </form>
+    <form action="{{ action_url }}" method="post">
+        <p>
+            <label for="password">New password:</label>
+            <input id="password" type="password" name="password" value="" />
+        </p>
+        <button type="submit">Change password</button>
+    </form>
+    {% if error %}
+        <p style="color: red">{{ error }}</p>
+    {% endif %}
 {% endblock %}
