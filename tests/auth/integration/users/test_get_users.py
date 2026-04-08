@@ -1,7 +1,7 @@
 from fastapi import status
 
 from app.auth.models import Role
-from app.auth.routers.users_router import GET_USERS_ROUTE_NAME
+from app.auth.routers.api.users_router import GET_USERS_ROUTE_NAME
 from app.auth.schemas import UserCreate, UserRead
 from tests.mixins import GetUrlMixin
 
