@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1>Registration</h1>
+    <form action="{{ url_for('register') }}" method="post">
+        <div>
+            <label for="email">Email:</label>
+            <input id="email" type="email" name="email" value="{{ form_data.email if form_data is defined else '' }}"/>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input id="password" type="password" name="password" value="{{ form_data.password if form_data is defined else '' }}"/>
+        </div>
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+        <button type="submit">Register</button>
+    </form>
+{% endblock %}

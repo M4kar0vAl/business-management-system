@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1>Authentication</h1>
+    <form action="{{ url_for('login') }}" method="post">
+        <div>
+            <label for="username">Email:</label>
+            <input id="username" type="email" name="username" value="{{ form_data.username if form_data is defined else '' }}" required/>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input id="password" type="password" name="password" value="{{ form_data.password if form_data is defined else '' }}" required/>
+        </div>
+        {% if error %}
+            <p>{{ error }}</p>
+        {% endif %}
+        <button type="submit">Login</button>
+    </form>
+{% endblock %}
