@@ -1,9 +1,10 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 
 from app.auth.exception_handlers import (
     exception_status_mapping as auth_exception_status_mapping,
 )
+from app.http_exceptions import RedirectException
 from app.meetings.exception_handlers import (
     exception_status_mapping as meetings_exception_status_mapping,
 )
@@ -61,3 +62,9 @@ def register_exception_handlers(app: FastAPI) -> None:
     register_exception_handlers_from_mapping(app, teams_exception_status_mapping)
     register_exception_handlers_from_mapping(app, tasks_exception_status_mapping)
     register_exception_handlers_from_mapping(app, meetings_exception_status_mapping)
+
+    @app.exception_handler(RedirectException)
+    async def redirect_exception_handler(_: Request, exc: RedirectException):
+        return RedirectResponse(
+            url=exc.url, status_code=exc.status_code, headers=exc.headers
+        )
