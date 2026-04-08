@@ -8,7 +8,7 @@ from app.auth.models import User
 from app.auth.routers import web_auth_router, web_users_router
 from app.templates import templates
 
-router = APIRouter()
+router = APIRouter(include_in_schema=False)
 
 
 @router.get("/", name="home", response_class=HTMLResponse)
