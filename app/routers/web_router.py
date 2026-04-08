@@ -5,7 +5,7 @@ from fastapi.responses import HTMLResponse
 
 from app.auth.fastapi_users_instance import current_active_user_or_none
 from app.auth.models import User
-from app.auth.routers import web_auth_router
+from app.auth.routers import web_auth_router, web_users_router
 from app.templates import templates
 
 router = APIRouter()
@@ -27,3 +27,4 @@ async def index(
 
 
 router.include_router(web_auth_router)
+router.include_router(web_users_router)
