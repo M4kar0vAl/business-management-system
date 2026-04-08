@@ -69,7 +69,7 @@ async def users_list_page(
     return templates.TemplateResponse(
         request=request,
         name="users/list.html",
-        context={"title": "Profile", "current_user": user, "users": users},
+        context={"title": "Users", "current_user": user, "users": users},
     )
 
 
