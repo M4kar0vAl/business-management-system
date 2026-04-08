@@ -8,6 +8,7 @@ __all__ = [
     "GET_TEAM_TASKS_ROUTE_NAME",
     "REMOVE_USER_FROM_TEAM_ROUTE_NAME",
     "router",
+    "web_router",
 ]
 
 from .api_router import (
@@ -21,3 +22,4 @@ from .api_router import (
     REMOVE_USER_FROM_TEAM_ROUTE_NAME,
     router,
 )
+from .web_router import router as web_router

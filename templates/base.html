@@ -23,6 +23,7 @@
             {% if current_user and (current_user.role == 'admin' or current_user.is_superuser) %}
                 <li><a href="{{ url_for('users:list_page') }}">Users</a></li>
             {% endif %}
+            <li><a href="{{ url_for('teams:list_page') }}">Teams</a></li>
         </ul>
     </nav>
     {% block content %}
