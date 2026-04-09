@@ -115,6 +115,8 @@ class TeamService:
         :param user_id: id of a user to assign role to
         :param assign_role: role to assign
         :return: User with updated role
+        :raises UserNotExists if the user with the given id does not exist
+        :raises UserNotInTeamError: if the user is not in team
         """
         user = await self.user_manager.get(user_id)
 
