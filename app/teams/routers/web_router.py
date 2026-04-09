@@ -6,11 +6,11 @@ from fastapi_users import exceptions
 from pydantic import EmailStr
 
 from app.auth.fastapi_users_instance import current_active_user, get_current_admin
-from app.auth.models import User
+from app.auth.models import Role, User
 from app.teams.dependencies import TeamServiceDep, current_team, team_of_current_user
 from app.teams.exceptions import TeamAlreadyExistsError, UserAlreadyInTeamError
 from app.teams.models import Team
-from app.teams.schemas import TeamCreate
+from app.teams.schemas import AssignRole, TeamCreate
 from app.templates import templates
 
 router = APIRouter(prefix="/teams")
@@ -22,6 +22,7 @@ TEAMS_DETAIL_PAGE_ROUTE_NAME = "teams:detail_page"
 TEAMS_ADD_MEMBER_PAGE_ROUTE_NAME = "teams:add_member_page"
 TEAMS_ADD_MEMBER_ROUTE_NAME = "add_team_member"
 TEAMS_REMOVE_MEMBER_ROUTE_NAME = "remove_team_member"
+TEAMS_ASSIGN_ROLE_ROUTE_NAME = "assign_user_role"
 
 
 @router.get("/", response_class=HTMLResponse, name=TEAMS_LIST_PAGE_ROUTE_NAME)
@@ -104,6 +105,7 @@ async def team_detail_page(
             "team": team,
             "members": members,
             "tasks": tasks,
+            "roles": Role,
         },
     )
 
@@ -177,6 +179,26 @@ async def team_remove_member(
     request: Request,
 ):
     await teams_service.remove_user_from_team(user_id)
+
+    return RedirectResponse(
+        request.url_for(TEAMS_DETAIL_PAGE_ROUTE_NAME, team_id=team.id),
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post(
+    "/{team_id}/members/{user_id}/assign_role",
+    dependencies=[Depends(get_current_admin)],
+    name=TEAMS_ASSIGN_ROLE_ROUTE_NAME,
+)
+async def team_assign_user_role(
+    team: Annotated[Team, Depends(current_team)],
+    user_role: Annotated[AssignRole, Form()],
+    user_id: int,
+    teams_service: TeamServiceDep,
+    request: Request,
+):
+    await teams_service.assign_user_role(user_id, user_role)
 
     return RedirectResponse(
         request.url_for(TEAMS_DETAIL_PAGE_ROUTE_NAME, team_id=team.id),
