@@ -79,7 +79,7 @@
             {% endif %}
             <div>Deadline: {{ task.deadline }}</div>
             <div>Author: {{ task.author.email }}</div>
-            {% if (is_manager or is_admin) and task_team_member %}
+            {% if (is_manager or is_admin) and task_team_member and task.assignee_id is none %}
                 <form action="{{ url_for('assign_user_to_task', task_id=task.id) }}" method="post">
                     <div>
                         <label for="task_assignee_input">Assignee:</label>
