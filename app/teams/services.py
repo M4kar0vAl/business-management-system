@@ -100,6 +100,7 @@ class TeamService:
 
         :param user_id: id of a user to remove from their current team
         :return: None
+        :raises UserNotExists if the user with the given id does not exist
         """
         user = await self.user_manager.get(user_id)
 
