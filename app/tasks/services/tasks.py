@@ -119,7 +119,6 @@ class TaskService:
         Delete a task.
 
         :param task: task to delete
-        :param user: user who is deleting task
         :return: None
         """
         await self.task_repo.delete(task)
