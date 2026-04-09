@@ -7,6 +7,7 @@ from pydantic import EmailStr
 
 from app.auth.fastapi_users_instance import current_active_user, get_current_admin
 from app.auth.models import Role, User
+from app.tasks.models import TaskStatus
 from app.teams.dependencies import TeamServiceDep, current_team, team_of_current_user
 from app.teams.exceptions import TeamAlreadyExistsError, UserAlreadyInTeamError
 from app.teams.models import Team
@@ -106,6 +107,7 @@ async def team_detail_page(
             "members": members,
             "tasks": tasks,
             "roles": Role,
+            "task_statuses": TaskStatus,
         },
     )
 
