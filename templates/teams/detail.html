@@ -5,11 +5,13 @@
 {% endblock %}
 
 {% block content %}
+    {% set is_admin = current_user.role == 'admin' or current_user.is_superuser %}
+
     <h1>{{ team.name }}</h1>
     <p>{{ team.description }}</p>
 
     <h2>Members</h2>
-    {% if current_user.role == 'admin' or current_user.is_superuser %}
+    {% if is_admin %}
         <a href="{{ url_for('teams:add_member_page', team_id=team.id) }}">Add member</a>
     {% endif %}
 
@@ -22,6 +24,11 @@
             <div>Role: {{ user.role }}</div>
             <div>Active: {{ user.is_active }}</div>
             <div>Superuser: {{ user.is_superuser }}</div>
+            {% if is_admin %}
+                <form action="{{ url_for('remove_team_member', team_id=team.id, user_id=user.id) }}" method="post">
+                    <button type="submit">Remove from team</button>
+                </form>
+            {% endif %}
         </div>
     {% endfor %}
 

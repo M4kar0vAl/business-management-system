@@ -21,6 +21,7 @@ TEAMS_CREATE_ROUTE_NAME = "create_team"
 TEAMS_DETAIL_PAGE_ROUTE_NAME = "teams:detail_page"
 TEAMS_ADD_MEMBER_PAGE_ROUTE_NAME = "teams:add_member_page"
 TEAMS_ADD_MEMBER_ROUTE_NAME = "add_team_member"
+TEAMS_REMOVE_MEMBER_ROUTE_NAME = "remove_team_member"
 
 
 @router.get("/", response_class=HTMLResponse, name=TEAMS_LIST_PAGE_ROUTE_NAME)
@@ -160,4 +161,24 @@ async def team_add_member(
             "user_email": user_email,
             "error": error,
         },
+    )
+
+
+@router.post(
+    "/{team_id}/remove_member/{user_id}",
+    dependencies=[Depends(get_current_admin)],
+    response_class=RedirectResponse,
+    name=TEAMS_REMOVE_MEMBER_ROUTE_NAME,
+)
+async def team_remove_member(
+    team: Annotated[Team, Depends(current_team)],
+    user_id: int,
+    teams_service: TeamServiceDep,
+    request: Request,
+):
+    await teams_service.remove_user_from_team(user_id)
+
+    return RedirectResponse(
+        request.url_for(TEAMS_DETAIL_PAGE_ROUTE_NAME, team_id=team.id),
+        status_code=status.HTTP_303_SEE_OTHER,
     )
