@@ -64,6 +64,11 @@
             <div>Deadline: {{ task.deadline }}</div>
             <div>Author: {{ task.author.email }}</div>
             <div>Assignee: {{ task.assignee.email }}</div>
+            {% if (is_manager or is_admin) and task.team_id == current_user.team_id and task.author_id == current_user.id %}
+                <form action="{{ url_for('delete_task', team_id=team.id, task_id=task.id) }}" method="post">
+                    <button type="submit">Delete</button>
+                </form>
+            {% endif %}
         </div>
     {% endfor %}
 

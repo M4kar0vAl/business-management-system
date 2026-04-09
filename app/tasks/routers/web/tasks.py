@@ -8,7 +8,8 @@ from pydantic import ValidationError
 
 from app.auth.fastapi_users_instance import get_current_manager
 from app.auth.models import User
-from app.tasks.dependencies import TaskServiceDep
+from app.tasks.dependencies import TaskServiceDep, current_task
+from app.tasks.models import Task
 from app.tasks.schemas import TaskCreate
 from app.teams.exceptions import TeamDoesNotExistError, UserDoesNotBelongToTeamError
 from app.teams.routers.web_router import TEAMS_DETAIL_PAGE_ROUTE_NAME
@@ -18,6 +19,7 @@ router = APIRouter()
 
 CREATE_TASK_PAGE_ROUTE_NAME = "tasks:create_page"
 CREATE_TASK_ROUTE_NAME = "create_task"
+DELETE_TASK_ROUTE_NAME = "delete_task"
 
 
 @router.get("/teams/{team_id}/create_task", name=CREATE_TASK_PAGE_ROUTE_NAME)
@@ -89,4 +91,25 @@ async def create_task(
             "task_data": task_data,
             "error": error,
         },
+    )
+
+
+@router.post(
+    "/teams/{team_id}/delete_task/{task_id}",
+    dependencies=[Depends(get_current_manager)],
+    name=DELETE_TASK_ROUTE_NAME,
+)
+async def delete_task(
+    task: Annotated[
+        Task,
+        Depends(current_task(get_current_manager, task_team_member=True, author=True)),
+    ],
+    task_service: TaskServiceDep,
+    request: Request,
+):
+    await task_service.delete_task(task)
+
+    return RedirectResponse(
+        request.url_for(TEAMS_DETAIL_PAGE_ROUTE_NAME, team_id=task.team_id),
+        status_code=status.HTTP_303_SEE_OTHER,
     )
