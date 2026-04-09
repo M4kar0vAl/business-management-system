@@ -9,6 +9,10 @@
     <p>{{ team.description }}</p>
 
     <h2>Members</h2>
+    {% if current_user.role == 'admin' or current_user.is_superuser %}
+        <a href="{{ url_for('teams:add_member_page', team_id=team.id) }}">Add member</a>
+    {% endif %}
+
     {% for user in members %}
         <div style="border: 2px solid gray; margin-bottom: 10px">
             {% if user == current_user %}
