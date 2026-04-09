@@ -20,6 +20,7 @@ router = APIRouter()
 CREATE_TASK_PAGE_ROUTE_NAME = "tasks:create_page"
 CREATE_TASK_ROUTE_NAME = "create_task"
 DELETE_TASK_ROUTE_NAME = "delete_task"
+ASSIGN_USER_TO_TASK_ROUTE_NAME = "assign_user_to_task"
 
 
 @router.get("/teams/{team_id}/create_task", name=CREATE_TASK_PAGE_ROUTE_NAME)
@@ -108,6 +109,31 @@ async def delete_task(
     request: Request,
 ):
     await task_service.delete_task(task)
+
+    return RedirectResponse(
+        request.url_for(TEAMS_DETAIL_PAGE_ROUTE_NAME, team_id=task.team_id),
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post(
+    "/{task_id}/assign_user/",
+    dependencies=[Depends(get_current_manager)],
+    name=ASSIGN_USER_TO_TASK_ROUTE_NAME,
+)
+async def assign_user_to_task(
+    task: Annotated[
+        Task,
+        Depends(current_task(get_current_manager, task_team_member=True)),
+    ],
+    task_service: TaskServiceDep,
+    request: Request,
+    assignee_id: Annotated[int | None, Form()] = None,
+):
+    if assignee_id is not None:
+        await task_service.assign_user_to_task(task, assignee_id)
+    else:
+        task.assignee = None
 
     return RedirectResponse(
         request.url_for(TEAMS_DETAIL_PAGE_ROUTE_NAME, team_id=task.team_id),
