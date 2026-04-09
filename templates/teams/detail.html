@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1>{{ team.name }}</h1>
+    <p>{{ team.description }}</p>
+
+    <h2>Members</h2>
+    {% for user in members %}
+        <div style="border: 2px solid gray; margin-bottom: 10px">
+            {% if user == current_user %}
+                <h3>You!</h3>
+            {% endif %}
+            <div>Email: {{ user.email }}</div>
+            <div>Role: {{ user.role }}</div>
+            <div>Active: {{ user.is_active }}</div>
+            <div>Superuser: {{ user.is_superuser }}</div>
+        </div>
+    {% endfor %}
+
+    <h2>Tasks</h2>
+    {% for task in tasks %}
+        <div style="border: 2px solid gray; margin-bottom: 10px">
+            <div>Description: {{ task.description }}</div>
+            <div>Status: {{ task.status }}</div>
+            <div>Deadline: {{ task.deadline }}</div>
+            <div>Author: {{ task.author.email }}</div>
+            <div>Assignee: {{ task.assignee.email }}</div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

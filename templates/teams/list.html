@@ -13,6 +13,9 @@
         <div style="border: 2px solid gray; margin-bottom: 10px; padding-inline: 10px">
             <h2>{{ team.name }}</h2>
             <p>{{ team.description }}</p>
+            {% if current_user.team_id == team.id %}
+                <a href="{{ url_for('teams:detail_page', team_id=team.id) }}">Details</a>
+            {% endif %}
         </div>
     {% endfor %}
 {% endblock %}
