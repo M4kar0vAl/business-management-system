@@ -5,7 +5,7 @@ from fastapi import status
 from app.auth.models import Role
 from app.auth.schemas import UserCreate
 from app.tasks.models import TaskStatus
-from app.tasks.routers.tasks import UPDATE_TASK_STATUS_ROUTE_NAME
+from app.tasks.routers.api.tasks import UPDATE_TASK_STATUS_ROUTE_NAME
 from app.tasks.schemas import TaskCreate
 from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin

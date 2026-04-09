@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 from fastapi import status
 
 from app.auth.schemas import UserCreate
-from app.tasks.routers.comments import GET_COMMENTS_ROUTE_NAME
+from app.tasks.routers.api.comments import GET_COMMENTS_ROUTE_NAME
 from app.tasks.schemas import CommentCreate, CommentRead, TaskCreate
 from app.teams.schemas import TeamCreate
 from tests.mixins import GetUrlMixin

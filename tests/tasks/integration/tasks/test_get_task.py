@@ -5,7 +5,7 @@ from fastapi import status
 
 from app.auth.models import Role
 from app.auth.schemas import UserCreate
-from app.tasks.routers.tasks import GET_TASK_ROUTE_NAME
+from app.tasks.routers.api.tasks import GET_TASK_ROUTE_NAME
 from app.tasks.schemas import TaskCreate
 from app.tasks.schemas.tasks import TaskReadFull
 from app.teams.schemas import TeamCreate
