@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+    {% set is_manager = current_user.role == 'manager' %}
     {% set is_admin = current_user.role == 'admin' or current_user.is_superuser %}
 
     <h1>{{ team.name }}</h1>
@@ -53,6 +54,9 @@
     {% endfor %}
 
     <h2>Tasks</h2>
+    {% if is_manager or is_admin %}
+        <a href="{{ url_for('tasks:create_page', team_id=team.id) }}">Create task</a>
+    {% endif %}
     {% for task in tasks %}
         <div style="border: 2px solid gray; margin-bottom: 10px">
             <div>Description: {{ task.description }}</div>
