@@ -6,6 +6,9 @@
 
 {% block content %}
     <h1>Teams</h1>
+    {% if current_user.role == 'admin' or current_user.is_superuser %}
+        <a href="{{ url_for('teams:create_page') }}">Create team</a>
+    {% endif %}
     {% for team in teams %}
         <div style="border: 2px solid gray; margin-bottom: 10px; padding-inline: 10px">
             <h2>{{ team.name }}</h2>
