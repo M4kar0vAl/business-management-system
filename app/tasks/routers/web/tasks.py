@@ -8,8 +8,13 @@ from fastapi.responses import RedirectResponse
 from pydantic import ValidationError
 
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
-from app.auth.models import User
-from app.tasks.dependencies import CommentServiceDep, TaskServiceDep, current_task
+from app.auth.models import Role, User
+from app.tasks.dependencies import (
+    CommentServiceDep,
+    EvaluationServiceDep,
+    TaskServiceDep,
+    current_task,
+)
 from app.tasks.exceptions import UserIsNotTaskAssigneeError
 from app.tasks.models import Task, TaskStatus
 from app.tasks.schemas import TaskCreate, TaskUpdate
@@ -184,6 +189,7 @@ async def task_detail_page(
     request: Request,
     team_service: TeamServiceDep,
     comment_service: CommentServiceDep,
+    evaluation_service: EvaluationServiceDep,
 ):
     try:
         team = await team_service.get_team_by_id(task.team_id)
@@ -197,6 +203,13 @@ async def task_detail_page(
 
     comments = await comment_service.get_comments_for_task(task)
 
+    if user.role == Role.MANAGER or user.role == Role.ADMIN or user.is_superuser:
+        user_evaluation = await evaluation_service.get_user_evaluation_of_task(
+            user, task
+        )
+    else:
+        user_evaluation = None
+
     return templates.TemplateResponse(
         request=request,
         name="tasks/detail.html",
@@ -206,6 +219,7 @@ async def task_detail_page(
             "task": task,
             "members": team_members,
             "comments": comments,
+            "current_user_evaluation": user_evaluation,
         },
     )
 
