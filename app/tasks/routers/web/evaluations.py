@@ -8,6 +8,7 @@ from app.auth.fastapi_users_instance import current_active_user, get_current_man
 from app.auth.models import User
 from app.tasks.dependencies import (
     EvaluationServiceDep,
+    TaskServiceDep,
     current_task,
     evaluation_of_current_task,
 )
@@ -109,8 +110,10 @@ async def user_evaluations_page(
     filters: Annotated[EvaluationsFilters, Query()],
     user: Annotated[User, Depends(current_active_user)],
     evaluation_service: EvaluationServiceDep,
+    task_service: TaskServiceDep,
     request: Request,
 ):
+    assigned_tasks = await task_service.get_tasks_assigned_to_user(user)
     evaluations = await evaluation_service.get_evaluations_of_user_tasks(user, filters)
     avg_evaluation = await evaluation_service.get_avg_evaluation_of_user_tasks(
         user, filters
@@ -125,5 +128,6 @@ async def user_evaluations_page(
             "filters": filters,
             "evaluations": evaluations,
             "avg_evaluation": avg_evaluation,
+            "assigned_tasks": assigned_tasks,
         },
     )

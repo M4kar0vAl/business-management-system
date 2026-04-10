@@ -7,6 +7,34 @@
 {% block content %}
     <h1>Evaluations of my tasks</h1>
 
+    <h2>Filters</h2>
+    <form style="display: flex; flex-direction: column; row-gap: 10px; align-items: start; margin-bottom: 10px">
+        <div>
+            <label for="start_date">Start date:</label>
+            <input id="start_date" name="start" type="date" value="{{ filters.start.isoformat() if filters.start is not none else '' }}"/>
+        </div>
+        <div>
+            <label for="end_date">End date:</label>
+            <input id="end_date" name="end" type="date" value="{{ filters.end.isoformat() if filters.end is not none else '' }}" />
+        </div>
+        <div>
+            <label for="task_id">Task:</label>
+            <select id="task_id" name="task_id">
+                <option value="">All</option>
+                {% for assigned_task in assigned_tasks %}
+                    <option
+                        value="{{ assigned_task.id }}"
+                        {% if filters.task_id == assigned_task.id %} selected {% endif %}
+                    >{{ assigned_task }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="display: flex; column-gap: 20px">
+            <button type="submit">Filter</button>
+            <a href="{{ url_for('my_evaluations') }}">Clear filters</a>
+        </div>
+    </form>
+
     {% if evaluations %}
         <div style="margin-bottom: 10px">
             <span style="font-size: larger">Average: </span><b style="font-size: x-large">{{ avg_evaluation }}</b>
