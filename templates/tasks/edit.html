@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    {% set is_manager = current_user.role == 'manager' %}
+    {% set is_admin = current_user.role == 'admin' or current_user.is_superuser %}
+    {% set task_team_member = task.team_id == current_user.team_id %}
+
+    <h1>Edit task {{ task.id }}</h1>
+        <form action="{{ url_for('update_task', task_id=task.id) }}" method="post" id="task_update_form">
+            <div>
+                <label for="task_description">Description:</label>
+                <textarea id="task_description" name="description">{{ update_data.description if update_data is defined else task.description}}</textarea>
+            </div>
+            <div>
+                <label for="task_deadline">Deadline:</label>
+                <input id="task_deadline" name="deadline" type="datetime-local" value="{{ update_data.deadline if update_data is defined else '' }}" />
+                <input
+                    id="user_timezone"
+                    type="hidden"
+                    name="user_timezone"
+                />
+            </div>
+            <div>
+                <label for="task_status">Status:</label>
+                <select id="task_status" name="task_status">
+                    {% if update_data is defined and update_data.status %}
+                        {% for status in task_statuses %}
+                            <option value="{{ status }}" {% if update_data.status == status %} selected {% endif %} >{{ status }}</option>
+                        {% endfor %}
+                    {% else %}
+                        {% for status in task_statuses %}
+                            <option value="{{ status }}" {% if task.status == status %} selected {% endif %} >{{ status }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            </div>
+            <button type="submit">Update</button>
+        </form>
+        {% if error is defined %}
+            <p style="color: red">{{ error }}</p>
+        {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('task_update_form');
+
+    form.addEventListener('submit', (event) => {
+        // Получаем IANA-название часового пояса пользователя, например "Europe/Moscow"
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        // Находим скрытое поле и записываем в него полученное значение
+        const hiddenTzInput = document.getElementById('user_timezone');
+
+        if (hiddenTzInput) {
+            hiddenTzInput.value = timezone;
+        }
+    });
+</script>
+{% endblock %}

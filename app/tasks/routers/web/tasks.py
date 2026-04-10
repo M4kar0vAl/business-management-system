@@ -12,7 +12,7 @@ from app.auth.models import User
 from app.tasks.dependencies import TaskServiceDep, current_task
 from app.tasks.exceptions import UserIsNotTaskAssigneeError
 from app.tasks.models import Task, TaskStatus
-from app.tasks.schemas import TaskCreate
+from app.tasks.schemas import TaskCreate, TaskUpdate
 from app.teams.dependencies import TeamServiceDep
 from app.teams.exceptions import TeamDoesNotExistError, UserDoesNotBelongToTeamError
 from app.teams.routers.web_router import (
@@ -29,6 +29,8 @@ DELETE_TASK_ROUTE_NAME = "delete_task"
 ASSIGN_USER_TO_TASK_ROUTE_NAME = "assign_user_to_task"
 UPDATE_TASK_STATUS_ROUTE_NAME = "update_task_status"
 DETAIL_TASK_PAGE_ROUTE_NAME = "tasks:detail_page"
+EDIT_TASK_PAGE_ROUTE_NAME = "tasks:edit_page"
+UPDATE_TASK_ROUTE_NAME = "update_task"
 
 
 @router.get("/teams/{team_id}/create_task", name=CREATE_TASK_PAGE_ROUTE_NAME)
@@ -201,4 +203,77 @@ async def task_detail_page(
             "task": task,
             "members": team_members,
         },
+    )
+
+
+@router.get("/{task_id}/edit", name=EDIT_TASK_PAGE_ROUTE_NAME)
+async def task_edit_page(
+    task: Annotated[
+        Task,
+        Depends(current_task(get_current_manager, task_team_member=True, author=True)),
+    ],
+    user: Annotated[User, Depends(get_current_manager)],
+    request: Request,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="tasks/edit.html",
+        context={
+            "title": f"Edit task {task.id}",
+            "current_user": user,
+            "task": task,
+            "task_statuses": TaskStatus,
+        },
+    )
+
+
+@router.post("/{task_id}/edit", name=UPDATE_TASK_ROUTE_NAME)
+async def update_task(
+    user_timezone: Annotated[str, Form()],
+    task: Annotated[
+        Task,
+        Depends(current_task(get_current_manager, task_team_member=True, author=True)),
+    ],
+    user: Annotated[User, Depends(get_current_manager)],
+    task_service: TaskServiceDep,
+    request: Request,
+    description: Annotated[str | None, Form()] = None,
+    deadline: Annotated[datetime | None, Form()] = None,
+    task_status: Annotated[TaskStatus | None, Form()] = None,
+):
+    user_tz = pytz.timezone(user_timezone)
+
+    try:
+        update_data = TaskUpdate(
+            description=description,
+            deadline=user_tz.localize(deadline).astimezone(UTC)
+            if deadline is not None
+            else None,
+            status=task_status,
+        )
+    except ValidationError as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="tasks/edit.html",
+            context={
+                "title": f"Edit task {task.id}",
+                "current_user": user,
+                "task": task,
+                "task_statuses": TaskStatus,
+                "update_data": {
+                    "description": description,
+                    "deadline": deadline,
+                    "status": task_status,
+                },
+                "error": e,
+            },
+        )
+
+    await task_service.update_task(
+        task, TaskUpdate(**update_data.model_dump(exclude_none=True))
+    )
+
+    return RedirectResponse(
+        request.url_for(DETAIL_TASK_PAGE_ROUTE_NAME, task_id=task.id),
+        status_code=status.HTTP_303_SEE_OTHER,
     )
