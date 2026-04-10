@@ -13,8 +13,12 @@ from app.tasks.dependencies import TaskServiceDep, current_task
 from app.tasks.exceptions import UserIsNotTaskAssigneeError
 from app.tasks.models import Task, TaskStatus
 from app.tasks.schemas import TaskCreate
+from app.teams.dependencies import TeamServiceDep
 from app.teams.exceptions import TeamDoesNotExistError, UserDoesNotBelongToTeamError
-from app.teams.routers.web_router import TEAMS_DETAIL_PAGE_ROUTE_NAME
+from app.teams.routers.web_router import (
+    TEAMS_DETAIL_PAGE_ROUTE_NAME,
+    TEAMS_LIST_PAGE_ROUTE_NAME,
+)
 from app.templates import templates
 
 router = APIRouter()
@@ -24,6 +28,7 @@ CREATE_TASK_ROUTE_NAME = "create_task"
 DELETE_TASK_ROUTE_NAME = "delete_task"
 ASSIGN_USER_TO_TASK_ROUTE_NAME = "assign_user_to_task"
 UPDATE_TASK_STATUS_ROUTE_NAME = "update_task_status"
+DETAIL_TASK_PAGE_ROUTE_NAME = "tasks:detail_page"
 
 
 @router.get("/teams/{team_id}/create_task", name=CREATE_TASK_PAGE_ROUTE_NAME)
@@ -164,4 +169,36 @@ async def update_task_status(
     return RedirectResponse(
         request.url_for(TEAMS_DETAIL_PAGE_ROUTE_NAME, team_id=task.team_id),
         status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.get("/{task_id}", name=DETAIL_TASK_PAGE_ROUTE_NAME)
+async def task_detail_page(
+    task: Annotated[
+        Task,
+        Depends(current_task(current_active_user, task_team_member=True, full=True)),
+    ],
+    user: Annotated[User, Depends(current_active_user)],
+    request: Request,
+    team_service: TeamServiceDep,
+):
+    try:
+        team = await team_service.get_team_by_id(task.team_id)
+    except TeamDoesNotExistError:
+        return RedirectResponse(
+            request.url_for(TEAMS_LIST_PAGE_ROUTE_NAME),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+    else:
+        team_members = await team_service.get_team_members(team)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="tasks/detail.html",
+        context={
+            "title": f"Task {task.id}",
+            "current_user": user,
+            "task": task,
+            "members": team_members,
+        },
     )
