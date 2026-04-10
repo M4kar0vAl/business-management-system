@@ -9,7 +9,7 @@ from pydantic import ValidationError
 
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
-from app.tasks.dependencies import TaskServiceDep, current_task
+from app.tasks.dependencies import CommentServiceDep, TaskServiceDep, current_task
 from app.tasks.exceptions import UserIsNotTaskAssigneeError
 from app.tasks.models import Task, TaskStatus
 from app.tasks.schemas import TaskCreate, TaskUpdate
@@ -183,6 +183,7 @@ async def task_detail_page(
     user: Annotated[User, Depends(current_active_user)],
     request: Request,
     team_service: TeamServiceDep,
+    comment_service: CommentServiceDep,
 ):
     try:
         team = await team_service.get_team_by_id(task.team_id)
@@ -194,6 +195,8 @@ async def task_detail_page(
     else:
         team_members = await team_service.get_team_members(team)
 
+    comments = await comment_service.get_comments_for_task(task)
+
     return templates.TemplateResponse(
         request=request,
         name="tasks/detail.html",
@@ -202,6 +205,7 @@ async def task_detail_page(
             "current_user": user,
             "task": task,
             "members": team_members,
+            "comments": comments,
         },
     )
 
