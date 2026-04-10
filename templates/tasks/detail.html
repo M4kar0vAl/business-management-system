@@ -79,6 +79,11 @@
                 <span>{{ comment.user.email }}</span>
                 <span>{{ comment.created_at }}</span>
             </div>
+            {% if task_team_member and comment.user_id == current_user.id %}
+                <form action="{{ url_for('delete_comment', task_id=task.id, comment_id=comment.id) }}" method="post" style="margin-top: 10px">
+                    <button type="submit">Delete</button>
+                </form>
+            {% endif %}
         </div>
     {% endfor %}
 
