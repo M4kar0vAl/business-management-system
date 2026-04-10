@@ -64,6 +64,13 @@
     </div>
 
     <h2>Comments</h2>
+    <form action="{{ url_for('create_comment', task_id=task.id) }}" method="post" style="margin-bottom: 10px">
+        <p>
+            <label for="comment_create_text">Comment:</label>
+            <textarea id="comment_create_text" name="text" required></textarea>
+        </p>
+        <button type="submit">Comment</button>
+    </form>
 
     {% for comment in comments %}
         <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px">
