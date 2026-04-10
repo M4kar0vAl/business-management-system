@@ -49,7 +49,12 @@
                     <span>{{ evaluation.author.email }}</span>
                     <span>{{ evaluation.created_at }}</span>
                 </div>
-                <a href="{{ url_for('tasks:detail_page', task_id=evaluation.task_id) }}">Go to task</a>
+
+                {% if evaluation.task.team_id == current_user.team_id %}
+                    <a href="{{ url_for('tasks:detail_page', task_id=evaluation.task_id) }}">{{ evaluation.task }}</a>
+                {% else %}
+                    <div>{{ evaluation.task }}</div>
+                {% endif %}
             </div>
         {% endfor %}
 
