@@ -47,3 +47,11 @@ class TaskUpdate(BaseModel):
     description: str | None = None
     deadline: datetime | None = None
     status: TaskStatus | None = None
+
+    @field_validator("deadline", mode="after")
+    @classmethod
+    def validate_deadline(cls, deadline: datetime | None):
+        if deadline is not None and deadline <= datetime.now(UTC):
+            raise ValueError("Deadline must be in the future")  # noqa: TRY003
+
+        return deadline
