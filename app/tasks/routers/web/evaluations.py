@@ -1,10 +1,10 @@
 from contextlib import suppress
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, Request, status
+from fastapi import APIRouter, Depends, Form, Query, Request, status
 from fastapi.responses import RedirectResponse
 
-from app.auth.fastapi_users_instance import get_current_manager
+from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
 from app.tasks.dependencies import (
     EvaluationServiceDep,
@@ -14,13 +14,16 @@ from app.tasks.dependencies import (
 from app.tasks.exceptions import EvaluationAlreadyExistsError
 from app.tasks.models import Evaluation, Task, TaskStatus
 from app.tasks.routers.web.tasks import DETAIL_TASK_PAGE_ROUTE_NAME
-from app.tasks.schemas import EvaluationCreate, EvaluationUpdate
+from app.tasks.schemas import EvaluationCreate, EvaluationsFilters, EvaluationUpdate
+from app.templates import templates
 
 router = APIRouter(prefix="/{task_id}/evaluations")
+user_evaluations_router = APIRouter(prefix="/my_evaluations")
 
 EVALUATION_CREATE_ROUTE_NAME = "create_evaluation"
 EVALUATION_UPDATE_ROUTE_NAME = "update_evaluation"
 EVALUATION_DELETE_ROUTE_NAME = "delete_evaluation"
+EVALUATIONS_MY_PAGE_ROUTE_NAME = "my_evaluations"
 
 
 @router.post("/", name=EVALUATION_CREATE_ROUTE_NAME)
@@ -98,4 +101,29 @@ async def delete_evaluation(
     return RedirectResponse(
         request.url_for(DETAIL_TASK_PAGE_ROUTE_NAME, task_id=task_id),
         status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@user_evaluations_router.get("/", name=EVALUATIONS_MY_PAGE_ROUTE_NAME)
+async def user_evaluations_page(
+    filters: Annotated[EvaluationsFilters, Query()],
+    user: Annotated[User, Depends(current_active_user)],
+    evaluation_service: EvaluationServiceDep,
+    request: Request,
+):
+    evaluations = await evaluation_service.get_evaluations_of_user_tasks(user, filters)
+    avg_evaluation = await evaluation_service.get_avg_evaluation_of_user_tasks(
+        user, filters
+    )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="tasks/my_evaluations.html",
+        context={
+            "title": "Evaluations of my tasks",
+            "current_user": user,
+            "filters": filters,
+            "evaluations": evaluations,
+            "avg_evaluation": avg_evaluation,
+        },
     )

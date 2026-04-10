@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1>Evaluations of my tasks</h1>
+
+    {% if evaluations %}
+        <div style="margin-bottom: 10px">
+            <span style="font-size: larger">Average: </span><b style="font-size: x-large">{{ avg_evaluation }}</b>
+        </div>
+
+        {% for evaluation in evaluations %}
+            <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
+                <div>
+                    Value: <b style="font-size: x-large">{{ evaluation.value }}</b>
+                </div>
+                <div style="display: flex; column-gap: 50px">
+                    <span>{{ evaluation.author.email }}</span>
+                    <span>{{ evaluation.created_at }}</span>
+                </div>
+                <a href="{{ url_for('tasks:detail_page', task_id=evaluation.task_id) }}">Go to task</a>
+            </div>
+        {% endfor %}
+
+    {% else %}
+        <p style="color: orange; font-size: larger">No evaluations yet!</p>
+    {% endif %}
+{% endblock %}
