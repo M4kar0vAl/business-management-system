@@ -74,7 +74,7 @@ class EvaluationRepository:
             select(Evaluation)
             .join(Task, Evaluation.task_id == Task.id)
             .where(Task.assignee_id == user.id, *filters_list)
-            .options(joinedload(Evaluation.author))
+            .options(joinedload(Evaluation.author), joinedload(Evaluation.task))
         )
 
         return list(await self.session.scalars(stmt))
