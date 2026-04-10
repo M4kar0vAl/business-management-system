@@ -17,7 +17,7 @@ from app.tasks.dependencies import (
 )
 from app.tasks.exceptions import UserIsNotTaskAssigneeError
 from app.tasks.models import Task, TaskStatus
-from app.tasks.schemas import TaskCreate, TaskUpdate
+from app.tasks.schemas import EvaluationsFilters, TaskCreate, TaskUpdate
 from app.teams.dependencies import TeamServiceDep
 from app.teams.exceptions import TeamDoesNotExistError, UserDoesNotBelongToTeamError
 from app.teams.routers.web_router import (
@@ -210,6 +210,15 @@ async def task_detail_page(
     else:
         user_evaluation = None
 
+    if task.assignee_id == user.id:
+        evaluations_of_user_task = (
+            await evaluation_service.get_evaluations_of_user_tasks(
+                user, EvaluationsFilters(task_id=task.id)
+            )
+        )
+    else:
+        evaluations_of_user_task = None
+
     return templates.TemplateResponse(
         request=request,
         name="tasks/detail.html",
@@ -221,6 +230,7 @@ async def task_detail_page(
             "comments": comments,
             "task_statuses": TaskStatus,
             "current_user_evaluation": user_evaluation,
+            "evaluations_of_user_task": evaluations_of_user_task,
         },
     )
 

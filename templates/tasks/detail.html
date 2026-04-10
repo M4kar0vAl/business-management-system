@@ -8,13 +8,14 @@
     {% set is_manager = current_user.role == 'manager' %}
     {% set is_admin = current_user.role == 'admin' or current_user.is_superuser %}
     {% set task_team_member = task.team_id == current_user.team_id %}
+    {% set is_assignee = task.assignee_id == current_user.id %}
 
     <h1>Task {{ task.id }}</h1>
 
     <div style="border: 2px solid gray; margin-bottom: 10px">
         <div>Description: {{ task.description }}</div>
 
-        {% if task.assignee_id == current_user.id and task_team_member %}
+        {% if is_assignee and task_team_member %}
             <form action="{{ url_for('update_task_status', task_id=task.id) }}" method="post">
                 <div>
                     <label for="task_status_input">Status:</label>
@@ -106,6 +107,29 @@
         {% else %}
             <p style="color: orange; font-size: larger">In order to evaluate a task its status should be 'done'</p>
         {% endif %}
+
+    {% endif %}
+
+    {% if is_assignee and evaluations_of_user_task is not none %}
+        <h2>Evaluations</h2>
+
+        {% if evaluations_of_user_task %}
+
+            {% for evaluation in evaluations_of_user_task %}
+                <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
+                    <div>
+                        Value: <b style="font-size: x-large">{{ evaluation.value }}</b>
+                    </div>
+                    <div style="display: flex; column-gap: 50px">
+                        <span>{{ evaluation.author.email }}</span>
+                        <span>{{ evaluation.created_at }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+
+        {% else %}
+            <p style="color: orange; font-size: larger">No evaluations yet!</p>
+        {% endif%}
 
     {% endif %}
 
