@@ -114,6 +114,9 @@
         <h2>Evaluations</h2>
 
         {% if evaluations_of_user_task %}
+            <div style="margin-bottom: 10px">
+                <span style="font-size: larger">Average: </span><b style="font-size: x-large">{{ avg_evaluation }}</b>
+            </div>
 
             {% for evaluation in evaluations_of_user_task %}
                 <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">

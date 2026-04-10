@@ -211,13 +211,16 @@ async def task_detail_page(
         user_evaluation = None
 
     if task.assignee_id == user.id:
+        filters = EvaluationsFilters(task_id=task.id)
         evaluations_of_user_task = (
-            await evaluation_service.get_evaluations_of_user_tasks(
-                user, EvaluationsFilters(task_id=task.id)
-            )
+            await evaluation_service.get_evaluations_of_user_tasks(user, filters)
+        )
+        avg_evaluation = await evaluation_service.get_avg_evaluation_of_user_tasks(
+            user, filters
         )
     else:
         evaluations_of_user_task = None
+        avg_evaluation = None
 
     return templates.TemplateResponse(
         request=request,
@@ -231,6 +234,7 @@ async def task_detail_page(
             "task_statuses": TaskStatus,
             "current_user_evaluation": user_evaluation,
             "evaluations_of_user_task": evaluations_of_user_task,
+            "avg_evaluation": avg_evaluation,
         },
     )
 
