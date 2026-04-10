@@ -49,14 +49,7 @@ async def create_evaluation(
 
 @router.post("/{evaluation_id}/update", name=EVALUATION_UPDATE_ROUTE_NAME)
 async def update_evaluation(
-    task: Annotated[
-        Task,
-        Depends(
-            current_task(
-                get_current_manager, task_team_member=True, status=TaskStatus.DONE
-            )
-        ),
-    ],
+    task_id: int,
     evaluation: Annotated[
         Evaluation,
         Depends(
@@ -76,7 +69,7 @@ async def update_evaluation(
     await evaluation_service.update_evaluation(evaluation, update_data)
 
     return RedirectResponse(
-        request.url_for(DETAIL_TASK_PAGE_ROUTE_NAME, task_id=task.id),
+        request.url_for(DETAIL_TASK_PAGE_ROUTE_NAME, task_id=task_id),
         status_code=status.HTTP_303_SEE_OTHER,
     )
 
