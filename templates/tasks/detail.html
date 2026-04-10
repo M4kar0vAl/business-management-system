@@ -73,17 +73,29 @@
     </form>
 
     {% for comment in comments %}
+        {% set comment_author = comment.user_id == current_user.id %}
+
         <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px">
-            <p>{{ comment.text }}</p>
+            {% if task_team_member and comment_author %}
+                <form action="{{ url_for('update_comment', task_id=task.id, comment_id=comment.id) }}" method="post" style="display: flex; column-gap: 25px; align-items: center; margin-bottom: 10px">
+                    <textarea name="text">{{ comment.text }}</textarea>
+                    <button type="submit">Edit</button>
+                </form>
+            {% else %}
+                <p>{{ comment.text }}</p>
+            {% endif %}
+
             <div style="display: flex; column-gap: 50px">
                 <span>{{ comment.user.email }}</span>
                 <span>{{ comment.created_at }}</span>
             </div>
-            {% if task_team_member and comment.user_id == current_user.id %}
+
+            {% if task_team_member and comment_author %}
                 <form action="{{ url_for('delete_comment', task_id=task.id, comment_id=comment.id) }}" method="post" style="margin-top: 10px">
                     <button type="submit">Delete</button>
                 </form>
             {% endif %}
+
         </div>
     {% endfor %}
 
