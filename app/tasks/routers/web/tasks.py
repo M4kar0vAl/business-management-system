@@ -219,6 +219,7 @@ async def task_detail_page(
             "task": task,
             "members": team_members,
             "comments": comments,
+            "task_statuses": TaskStatus,
             "current_user_evaluation": user_evaluation,
         },
     )
