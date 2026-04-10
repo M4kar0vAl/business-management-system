@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Annotated, Self
 
-from pydantic import AfterValidator, BaseModel, model_validator
+from pydantic import AfterValidator, BaseModel, field_validator, model_validator
 
 
 class BaseResponse(BaseModel):
@@ -33,3 +33,10 @@ class PeriodFilters(BaseModel):
             raise ValueError("Period 'start' cannot be later than 'end'")  # noqa: TRY003
 
         return self
+
+    @field_validator("start", "end", mode="before")
+    @classmethod
+    def empty_date_strings_to_none(cls, v):
+        if v == "":
+            return None
+        return v
