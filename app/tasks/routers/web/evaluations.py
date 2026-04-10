@@ -20,6 +20,7 @@ router = APIRouter(prefix="/{task_id}/evaluations")
 
 EVALUATION_CREATE_ROUTE_NAME = "create_evaluation"
 EVALUATION_UPDATE_ROUTE_NAME = "update_evaluation"
+EVALUATION_DELETE_ROUTE_NAME = "delete_evaluation"
 
 
 @router.post("/", name=EVALUATION_CREATE_ROUTE_NAME)
@@ -76,5 +77,32 @@ async def update_evaluation(
 
     return RedirectResponse(
         request.url_for(DETAIL_TASK_PAGE_ROUTE_NAME, task_id=task.id),
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post("/{evaluation_id}/delete", name=EVALUATION_DELETE_ROUTE_NAME)
+async def delete_evaluation(
+    task_id: int,
+    evaluation: Annotated[
+        Evaluation,
+        Depends(
+            evaluation_of_current_task(
+                get_current_manager,
+                current_task(
+                    get_current_manager,
+                    task_team_member=True,
+                ),
+                author=True,
+            )
+        ),
+    ],
+    evaluation_service: EvaluationServiceDep,
+    request: Request,
+):
+    await evaluation_service.delete_evaluation(evaluation)
+
+    return RedirectResponse(
+        request.url_for(DETAIL_TASK_PAGE_ROUTE_NAME, task_id=task_id),
         status_code=status.HTTP_303_SEE_OTHER,
     )
