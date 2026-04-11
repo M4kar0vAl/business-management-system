@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+    {% set is_manager_or_admin = current_user.role == 'manager' or current_user.role == 'admin' or current_user.is_superuser %}
     {%  set is_meeting_author = meeting.created_by.id == current_user.id %}
 
     <h1>Meeting {{ meeting.id }}</h1>
@@ -25,7 +26,7 @@
 
     <h2>Participants</h2>
 
-    {% if current_user.role == 'manager' or current_user.role == 'admin' or current_user.is_superuser %}
+    {% if is_manager_or_admin %}
         <form action="{{ url_for('add_meeting_participant', meeting_id=meeting.id) }}" method="post" style="display: flex; flex-direction: column; row-gap: 10px; align-items: start; margin-bottom: 10px">
             <div>
                 <label for="user_email">User email:</label>
@@ -47,6 +48,13 @@
             <div>Role: {{ participant.role }}</div>
             <div>Active: {{ participant.is_active }}</div>
             <div>Superuser: {{ participant.is_superuser }}</div>
+
+            {% if is_manager_or_admin %}
+                <form action="{{ url_for('remove_meeting_participant', meeting_id=meeting.id, user_id=participant.id) }}" method="post">
+                    <button type="submit">Remove participant</button>
+                </form>
+            {% endif %}
+
         </div>
     {% endfor %}
 

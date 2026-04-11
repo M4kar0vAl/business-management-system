@@ -1,3 +1,4 @@
+from contextlib import suppress
 from datetime import UTC, datetime
 from typing import Annotated
 
@@ -27,6 +28,7 @@ MEETING_CREATE_PAGE_ROUTE_NAME = "meetings:create_page"
 MEETING_CREATE_ROUTE_NAME = "create_meeting"
 MEETING_DELETE_ROUTE_NAME = "delete_meeting"
 MEETING_ADD_PARTICIPANT_ROUTE_NAME = "add_meeting_participant"
+MEETING_REMOVE_PARTICIPANT_ROUTE_NAME = "remove_meeting_participant"
 
 
 @router.get("/", name=MEETING_LIST_PAGE_ROUTE_NAME)
@@ -181,4 +183,23 @@ async def add_meeting_participant(
             "user_email": user_email,
             "error": error,
         },
+    )
+
+
+@router.post(
+    "/{meeting_id}/remove_participant/{user_id}",
+    name=MEETING_REMOVE_PARTICIPANT_ROUTE_NAME,
+)
+async def remove_meeting_participant(
+    user_id: int,
+    meeting: Annotated[Meeting, Depends(current_meeting(get_current_manager))],
+    meeting_service: MeetingServiceDep,
+    request: Request,
+):
+    with suppress(UserNotExists):
+        await meeting_service.remove_participant(meeting, user_id)
+
+    return RedirectResponse(
+        request.url_for(MEETING_DETAIL_PAGE_ROUTE_NAME, meeting_id=meeting.id),
+        status_code=status.HTTP_303_SEE_OTHER,
     )
