@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% block content %}
+    {%  set is_meeting_author = meeting.created_by.id == current_user.id %}
+
     <h1>Meeting {{ meeting.id }}</h1>
 
     <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
@@ -12,6 +14,13 @@
         <div>End: {{ meeting.end_time }}</div>
         <div>Duration: {{ meeting.end_time - meeting.start_time }}</div>
         <div>Created by: {{ meeting.created_by.email }}</div>
+
+        {% if is_meeting_author %}
+            <form action="{{ url_for('delete_meeting', meeting_id=meeting.id) }}" method="post">
+                <button type="submit">Delete</button>
+            </form>
+        {% endif %}
+
     </div>
 
     <h2>Participants</h2>

@@ -20,6 +20,7 @@ MEETING_LIST_PAGE_ROUTE_NAME = "meetings:list_page"
 MEETING_DETAIL_PAGE_ROUTE_NAME = "meetings:detail_page"
 MEETING_CREATE_PAGE_ROUTE_NAME = "meetings:create_page"
 MEETING_CREATE_ROUTE_NAME = "create_meeting"
+MEETING_DELETE_ROUTE_NAME = "delete_meeting"
 
 
 @router.get("/", name=MEETING_LIST_PAGE_ROUTE_NAME)
@@ -121,4 +122,20 @@ async def meetings_detail_page(
             "current_user": user,
             "meeting": meeting,
         },
+    )
+
+
+@router.post("/{meeting_id}/delete", name=MEETING_DELETE_ROUTE_NAME)
+async def delete_meeting(
+    meeting: Annotated[
+        Meeting, Depends(current_meeting(current_active_user, author=True))
+    ],
+    meeting_service: MeetingServiceDep,
+    request: Request,
+):
+    await meeting_service.delete_meeting(meeting)
+
+    return RedirectResponse(
+        request.url_for(MEETING_LIST_PAGE_ROUTE_NAME),
+        status_code=status.HTTP_303_SEE_OTHER,
     )
