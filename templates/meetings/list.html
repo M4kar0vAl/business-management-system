@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1>Meetings</h1>
+
+    <h2>Filters</h2>
+    <form style="display: flex; flex-direction: column; row-gap: 10px; align-items: start; margin-bottom: 10px">
+        <div>
+            <label for="start_date">Start date:</label>
+            <input id="start_date" name="start" type="date" value="{{ filters.start.isoformat() if filters.start is not none else '' }}"/>
+        </div>
+        <div>
+            <label for="end_date">End date:</label>
+            <input id="end_date" name="end" type="date" value="{{ filters.end.isoformat() if filters.end is not none else '' }}" />
+        </div>
+        <div style="display: flex; column-gap: 20px">
+            <button type="submit">Filter</button>
+            <a href="{{ url_for('meetings:list_page') }}">Clear filters</a>
+        </div>
+    </form>
+
+    {% for meeting in meetings %}
+        <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
+            <div>Start: {{ meeting.start_time }}</div>
+            <div>End: {{ meeting.end_time }}</div>
+            <div>Duration: {{ meeting.end_time - meeting.start_time }}</div>
+            <div>Created by: {{ meeting.created_by.email }}</div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

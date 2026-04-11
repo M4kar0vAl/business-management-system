@@ -7,6 +7,7 @@ __all__ = [
     "GET_USER_MEETINGS_ROUTE_NAME",
     "REMOVE_MEETING_PARTICIPANT_ROUTE_NAME",
     "router",
+    "web_router",
 ]
 
 from .api_router import (
@@ -19,3 +20,4 @@ from .api_router import (
     REMOVE_MEETING_PARTICIPANT_ROUTE_NAME,
     router,
 )
+from .web_router import router as web_router
