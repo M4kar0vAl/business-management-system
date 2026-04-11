@@ -1,18 +1,25 @@
+from datetime import UTC, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Request
+import pytz
+from fastapi import APIRouter, Depends, Form, Query, Request, status
+from fastapi.responses import RedirectResponse
+from pydantic import ValidationError
 
-from app.auth.fastapi_users_instance import current_active_user
+from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
 from app.meetings.dependencies import MeetingServiceDep, current_meeting
+from app.meetings.exceptions import OverlappingMeetingError
 from app.meetings.models import Meeting
-from app.meetings.schemas import MeetingFilters
+from app.meetings.schemas import MeetingCreate, MeetingFilters
 from app.templates import templates
 
 router = APIRouter(prefix="/meetings")
 
 MEETING_LIST_PAGE_ROUTE_NAME = "meetings:list_page"
 MEETING_DETAIL_PAGE_ROUTE_NAME = "meetings:detail_page"
+MEETING_CREATE_PAGE_ROUTE_NAME = "meetings:create_page"
+MEETING_CREATE_ROUTE_NAME = "create_meeting"
 
 
 @router.get("/", name=MEETING_LIST_PAGE_ROUTE_NAME)
@@ -33,6 +40,68 @@ async def meetings_list_page(
             "meetings": meetings,
             "filters": filters,
         },
+    )
+
+
+@router.get("/create", name=MEETING_CREATE_PAGE_ROUTE_NAME)
+async def meetings_create_page(
+    user: Annotated[User, Depends(get_current_manager)],
+    request: Request,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="meetings/create.html",
+        context={
+            "title": "Create Meeting",
+            "current_user": user,
+        },
+    )
+
+
+@router.post("/create", name=MEETING_CREATE_ROUTE_NAME)
+async def create_meeting(
+    start_time: Annotated[datetime, Form()],
+    end_time: Annotated[datetime, Form()],
+    user_timezone: Annotated[str, Form()],
+    user: Annotated[User, Depends(get_current_manager)],
+    meeting_service: MeetingServiceDep,
+    request: Request,
+):
+    user_tz = pytz.timezone(user_timezone)
+    try:
+        create_data = MeetingCreate(
+            start_time=user_tz.localize(start_time).astimezone(UTC),
+            end_time=user_tz.localize(end_time).astimezone(UTC),
+        )
+    except ValidationError as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="meetings/create.html",
+            context={
+                "title": "Create Meeting",
+                "current_user": user,
+                "error": e,
+            },
+        )
+
+    try:
+        meeting = await meeting_service.create_meeting(create_data, user)
+        await meeting_service.uow.flush()
+    except OverlappingMeetingError as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="meetings/create.html",
+            context={
+                "title": "Create Meeting",
+                "current_user": user,
+                "create_data": create_data,
+                "error": e.message,
+            },
+        )
+
+    return RedirectResponse(
+        request.url_for(MEETING_DETAIL_PAGE_ROUTE_NAME, meeting_id=meeting.id),
+        status_code=status.HTTP_303_SEE_OTHER,
     )
 
 

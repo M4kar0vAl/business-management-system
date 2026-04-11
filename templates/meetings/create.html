@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1>Create meeting</h1>
+
+    <form id="meeting_create_form" action="{{ url_for('create_meeting') }}" method="post" style="display: flex; flex-direction: column; row-gap: 10px; align-items: start">
+        <div>
+            <label for="meeting_start_time">Start time:</label>
+            <input
+                id="meeting_start_time"
+                type="datetime-local"
+                name="start_time"
+                value="{{ create_data.start_time if create_data is defined else '' }}"
+                required
+            />
+        </div>
+        <div>
+            <label for="meeting_end_time">End time:</label>
+            <input
+                id="meeting_end_time"
+                type="datetime-local"
+                name="end_time"
+                value="{{ create_data.end_time if create_data is defined else '' }}"
+                required
+            />
+        </div>
+        <input
+            id="user_timezone"
+            type="hidden"
+            name="user_timezone"
+        />
+        <button type="submit">Create</button>
+    </form>
+    {% if error is defined %}
+        <p style="color: red">{{ error }}</p>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('meeting_create_form');
+
+    form.addEventListener('submit', (event) => {
+        // Получаем IANA-название часового пояса пользователя, например "Europe/Moscow"
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        // Находим скрытое поле и записываем в него полученное значение
+        const hiddenTzInput = document.getElementById('user_timezone');
+
+        if (hiddenTzInput) {
+            hiddenTzInput.value = timezone;
+        }
+    });
+</script>
+{% endblock %}

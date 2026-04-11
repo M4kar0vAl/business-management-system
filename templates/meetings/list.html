@@ -7,6 +7,10 @@
 {% block content %}
     <h1>Meetings</h1>
 
+    {% if current_user.role == 'manager' or current_user.role == 'admin' or current_user.is_superuser %}
+        <a href="{{ url_for('meetings:create_page') }}" style="font-size: larger; margin-bottom: 10px">Create meeting</a>
+    {% endif %}
+
     <h2>Filters</h2>
     <form style="display: flex; flex-direction: column; row-gap: 10px; align-items: start; margin-bottom: 10px">
         <div>
