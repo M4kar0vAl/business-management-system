@@ -25,6 +25,19 @@
 
     <h2>Participants</h2>
 
+    {% if current_user.role == 'manager' or current_user.role == 'admin' or current_user.is_superuser %}
+        <form action="{{ url_for('add_meeting_participant', meeting_id=meeting.id) }}" method="post" style="display: flex; flex-direction: column; row-gap: 10px; align-items: start; margin-bottom: 10px">
+            <div>
+                <label for="user_email">User email:</label>
+                <input id="user_email" type="email" name="user_email" value="{{ user_email if user_email is defined else ''}}" />
+            </div>
+            <button type="submit">Add participant</button>
+        </form>
+        {% if error %}
+            <p style="color: red">{{ error }}</p>
+        {% endif %}
+    {% endif %}
+
     {% for participant in meeting.participants %}
         <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
             {% if participant == current_user %}

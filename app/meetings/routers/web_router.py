@@ -4,12 +4,17 @@ from typing import Annotated
 import pytz
 from fastapi import APIRouter, Depends, Form, Query, Request, status
 from fastapi.responses import RedirectResponse
-from pydantic import ValidationError
+from fastapi_users.exceptions import UserNotExists
+from pydantic import EmailStr, ValidationError
 
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
 from app.meetings.dependencies import MeetingServiceDep, current_meeting
-from app.meetings.exceptions import OverlappingMeetingError
+from app.meetings.exceptions import (
+    AlreadyParticipantError,
+    MeetingDoesNotExistError,
+    OverlappingMeetingError,
+)
 from app.meetings.models import Meeting
 from app.meetings.schemas import MeetingCreate, MeetingFilters
 from app.templates import templates
@@ -21,6 +26,7 @@ MEETING_DETAIL_PAGE_ROUTE_NAME = "meetings:detail_page"
 MEETING_CREATE_PAGE_ROUTE_NAME = "meetings:create_page"
 MEETING_CREATE_ROUTE_NAME = "create_meeting"
 MEETING_DELETE_ROUTE_NAME = "delete_meeting"
+MEETING_ADD_PARTICIPANT_ROUTE_NAME = "add_meeting_participant"
 
 
 @router.get("/", name=MEETING_LIST_PAGE_ROUTE_NAME)
@@ -138,4 +144,41 @@ async def delete_meeting(
     return RedirectResponse(
         request.url_for(MEETING_LIST_PAGE_ROUTE_NAME),
         status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post("/{meeting_id}/add_participant", name=MEETING_ADD_PARTICIPANT_ROUTE_NAME)
+async def add_meeting_participant(
+    user_email: Annotated[EmailStr, Form()],
+    meeting: Annotated[Meeting, Depends(current_meeting(get_current_manager))],
+    user: Annotated[User, Depends(get_current_manager)],
+    meeting_service: MeetingServiceDep,
+    request: Request,
+):
+    error = None
+    try:
+        await meeting_service.add_participant(meeting, user_email)
+    except UserNotExists:
+        error = "User with the given email does not exist"
+    except AlreadyParticipantError as e:
+        error = e.message
+
+    try:
+        meeting = await meeting_service.get_meeting_by_id(meeting.id, full=True)
+    except MeetingDoesNotExistError:
+        return RedirectResponse(
+            request.url_for(MEETING_LIST_PAGE_ROUTE_NAME),
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="meetings/detail.html",
+        context={
+            "title": f"Meeting {meeting.id}",
+            "current_user": user,
+            "meeting": meeting,
+            "user_email": user_email,
+            "error": error,
+        },
     )
