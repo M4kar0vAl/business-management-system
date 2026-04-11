@@ -29,6 +29,7 @@ MEETING_CREATE_ROUTE_NAME = "create_meeting"
 MEETING_DELETE_ROUTE_NAME = "delete_meeting"
 MEETING_ADD_PARTICIPANT_ROUTE_NAME = "add_meeting_participant"
 MEETING_REMOVE_PARTICIPANT_ROUTE_NAME = "remove_meeting_participant"
+MEETING_MY_PAGE_ROUTE_NAME = "meetings:my_meetings_page"
 
 
 @router.get("/", name=MEETING_LIST_PAGE_ROUTE_NAME)
@@ -45,6 +46,27 @@ async def meetings_list_page(
         name="meetings/list.html",
         context={
             "title": "Meetings",
+            "current_user": user,
+            "meetings": meetings,
+            "filters": filters,
+        },
+    )
+
+
+@router.get("/my", name=MEETING_MY_PAGE_ROUTE_NAME)
+async def my_meetings_page(
+    filters: Annotated[MeetingFilters, Query()],
+    user: Annotated[User, Depends(current_active_user)],
+    meeting_service: MeetingServiceDep,
+    request: Request,
+):
+    meetings = await meeting_service.get_user_meetings(user, filters)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="meetings/my.html",
+        context={
+            "title": "My Meetings",
             "current_user": user,
             "meetings": meetings,
             "filters": filters,

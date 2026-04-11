@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1>My Meetings</h1>
+
+    <h2>Filters</h2>
+    <form style="display: flex; flex-direction: column; row-gap: 10px; align-items: start; margin-bottom: 10px">
+        <div>
+            <label for="start_date">Start date:</label>
+            <input id="start_date" name="start" type="date" value="{{ filters.start.isoformat() if filters.start is not none else '' }}"/>
+        </div>
+        <div>
+            <label for="end_date">End date:</label>
+            <input id="end_date" name="end" type="date" value="{{ filters.end.isoformat() if filters.end is not none else '' }}" />
+        </div>
+        <div style="display: flex; column-gap: 20px">
+            <button type="submit">Filter</button>
+            <a href="{{ url_for('meetings:my_meetings_page') }}">Clear filters</a>
+        </div>
+    </form>
+
+    {% for meeting in meetings %}
+        {%  set is_meeting_author = meeting.created_by.id == current_user.id %}
+
+        <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
+            <div>Start: {{ meeting.start_time }}</div>
+            <div>End: {{ meeting.end_time }}</div>
+            <div>Duration: {{ meeting.end_time - meeting.start_time }}</div>
+            <div>Created by: {{ meeting.created_by.email }}</div>
+            <a href="{{ url_for('meetings:detail_page', meeting_id=meeting.id) }}">Details</a>
+
+            {% if is_meeting_author %}
+                <form action="{{ url_for('delete_meeting', meeting_id=meeting.id) }}" method="post">
+                    <button type="submit">Delete</button>
+                </form>
+            {% endif %}
+        </div>
+    {% endfor %}
+
+{% endblock %}

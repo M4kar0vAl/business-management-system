@@ -21,12 +21,15 @@
         <ul>
             <li><a href="{{ url_for('home') }}">Home</a></li>
             {% if current_user %}
+
                 {% if current_user.role == 'admin' or current_user.is_superuser %}
                     <li><a href="{{ url_for('users:list_page') }}">Users</a></li>
                 {% endif %}
+
                 <li><a href="{{ url_for('teams:list_page') }}">Teams</a></li>
                 <li><a href="{{ url_for('my_evaluations') }}">Evaluations I received</a></li>
                 <li><a href="{{ url_for('meetings:list_page') }}">Meetings</a></li>
+                <li><a href="{{ url_for('meetings:my_meetings_page') }}">My Meetings</a></li>
             {% endif %}
         </ul>
     </nav>
