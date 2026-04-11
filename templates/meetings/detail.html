@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    <h1>Meeting {{ meeting.id }}</h1>
+
+    <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
+        <div>Start: {{ meeting.start_time }}</div>
+        <div>End: {{ meeting.end_time }}</div>
+        <div>Duration: {{ meeting.end_time - meeting.start_time }}</div>
+        <div>Created by: {{ meeting.created_by.email }}</div>
+    </div>
+
+    <h2>Participants</h2>
+
+    {% for participant in meeting.participants %}
+        <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
+            {% if participant == current_user %}
+                <h3>You!</h3>
+            {% endif %}
+            <div>Email: {{ participant.email }}</div>
+            <div>Role: {{ participant.role }}</div>
+            <div>Active: {{ participant.is_active }}</div>
+            <div>Superuser: {{ participant.is_superuser }}</div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

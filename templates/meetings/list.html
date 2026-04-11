@@ -29,6 +29,7 @@
             <div>End: {{ meeting.end_time }}</div>
             <div>Duration: {{ meeting.end_time - meeting.start_time }}</div>
             <div>Created by: {{ meeting.created_by.email }}</div>
+            <a href="{{ url_for('meetings:detail_page', meeting_id=meeting.id) }}">Details</a>
         </div>
     {% endfor %}
 
