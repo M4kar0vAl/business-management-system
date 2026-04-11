@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Annotated
 
-import httpx
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,11 +27,3 @@ async def get_uow(
 
 
 UOWDep = Annotated[UnitOfWork, Depends(get_uow)]
-
-
-async def get_async_client() -> AsyncGenerator[httpx.AsyncClient, Any]:
-    async with httpx.AsyncClient() as client:
-        yield client
-
-
-AsyncClientDep = Annotated[httpx.AsyncClient, Depends(get_async_client)]
