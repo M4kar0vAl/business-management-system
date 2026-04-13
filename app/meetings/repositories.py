@@ -6,7 +6,7 @@ from sqlalchemy.orm import joinedload, selectinload
 
 from app.auth.models import User
 from app.meetings.models import Meeting, meeting_participants
-from app.meetings.schemas import MeetingCreate, MeetingFilters
+from app.meetings.schemas import MeetingCreate, MeetingFilters, MeetingsCalendarFilters
 
 
 class MeetingRepository:
@@ -71,6 +71,20 @@ class MeetingRepository:
             .where(Meeting.participants.any(User.id == user.id), *filters_list)
             .options(joinedload(Meeting.created_by))
         )
+        return list(await self.session.scalars(stmt))
+
+    async def get_meetings_calendar(
+        self, filters: MeetingsCalendarFilters
+    ) -> list[Meeting]:
+        """
+        Get meetings to display in calendar.
+
+        :param filters: filters to apply, including calendar period.
+        :return: list of meetings
+        """
+        filters_list = self._get_calendar_filters(filters)
+        stmt = select(Meeting).where(*filters_list)
+
         return list(await self.session.scalars(stmt))
 
     async def delete(self, meeting: Meeting) -> None:
@@ -157,3 +171,10 @@ class MeetingRepository:
             filters_list.append(Meeting.start_time < end_datetime_exclusive)
 
         return filters_list
+
+    @classmethod
+    def _get_calendar_filters(cls, filters: MeetingsCalendarFilters):
+        return [
+            Meeting.start_time < filters.end.astimezone(UTC),
+            Meeting.end_time > filters.start.astimezone(UTC),
+        ]
