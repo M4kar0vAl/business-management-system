@@ -6,7 +6,7 @@
 
 {% block content %}
     <h1>Authentication</h1>
-    <form action="{{ url_for('login') }}" method="post">
+    <form action="{{ url_for('login') }}" method="post" style="display: flex; flex-direction: column; row-gap: 10px; align-items: start">
         <div>
             <label for="username">Email:</label>
             <input id="username" type="email" name="username" value="{{ form_data.username if form_data is defined else '' }}" required/>
