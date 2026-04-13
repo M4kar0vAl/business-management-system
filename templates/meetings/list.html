@@ -4,12 +4,20 @@
     {{ title }}
 {% endblock %}
 
+{% block head %}
+    <!-- FullCalendar CSS и JS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js"></script>
+{% endblock %}
+
 {% block content %}
     <h1>Meetings</h1>
 
     {% if current_user.role == 'manager' or current_user.role == 'admin' or current_user.is_superuser %}
-        <a href="{{ url_for('meetings:create_page') }}" style="font-size: larger; margin-bottom: 10px">Create meeting</a>
+        <a href="{{ url_for('meetings:create_page') }}" style="font-size: larger; display: inline-flex; margin-bottom: 10px">Create meeting</a>
     {% endif %}
+
+    <div id="calendar"></div>
 
     <h2>Filters</h2>
     <form style="display: flex; flex-direction: column; row-gap: 10px; align-items: start; margin-bottom: 10px">
@@ -45,4 +53,45 @@
         </div>
     {% endfor %}
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            initialView: 'dayGridMonth',
+            events: {
+                url: "{{ url_for('meetings:calendar') }}",
+                method: 'GET',
+                failure: function(error) {
+                    console.error('Ошибка загрузки событий:', error);
+                    alert('Could not load tasks. Try later.');
+                }
+            },
+            eventDataTransform: function(rawEventData) {
+                return {
+                    title: `Meeting`,
+                    start: rawEventData.start_time,
+                    end: rawEventData.end_time,
+                    extendedProps: {
+                        meeting_id: rawEventData.id
+                    }
+                };
+            },
+            eventClick: function(info) {
+                let meetingId = info.event.extendedProps.meeting_id;
+                window.location.href = `/meetings/${meetingId}`;
+            },
+        });
+
+        calendar.render();
+    });
+</script>
 {% endblock %}
