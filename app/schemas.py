@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Annotated, Self
 
 from pydantic import AfterValidator, BaseModel, field_validator, model_validator
@@ -40,3 +40,13 @@ class PeriodFilters(BaseModel):
         if v == "":
             return None
         return v
+
+
+class CalendarFilters(BaseModel):
+    start: datetime
+    end: datetime
+
+
+class TasksCalendarFilters(CalendarFilters):
+    team_id: int | None = None
+    assignee_id: int | None = None
