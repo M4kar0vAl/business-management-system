@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>BMS | {% block title %}{% endblock %}</title>
+    {% block head %}
+    {% endblock %}
 </head>
 <body>
     {% if current_user %}

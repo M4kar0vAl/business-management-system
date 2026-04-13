@@ -4,6 +4,12 @@
     {{ title }}
 {% endblock %}
 
+{% block head %}
+    <!-- FullCalendar CSS и JS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js"></script>
+{% endblock %}
+
 {% block content %}
     {% set is_manager = current_user.role == 'manager' %}
     {% set is_admin = current_user.role == 'admin' or current_user.is_superuser %}
@@ -57,6 +63,10 @@
     {% if is_manager or is_admin %}
         <a href="{{ url_for('tasks:create_page', team_id=team.id) }}" style="font-size: larger; display: inline-flex; margin-bottom: 10px">Create task</a>
     {% endif %}
+
+    <div id="calendar" style="margin-bottom: 20px"></div>
+
+    <h3>Tasks List</h3>
     {% for task in tasks %}
         {% set task_team_member = task.team_id == current_user.team_id %}
 
@@ -147,5 +157,56 @@
         init();
     }
 })();
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const calendarEl = document.getElementById('calendar');
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            initialView: 'dayGridMonth',
+            events: {
+                url: "{{ url_for('tasks:calendar') }}",
+                method: 'GET',
+                extraParams: function() {
+                    return {
+                        team_id: {{ team.id }},
+                    };
+                },
+                failure: function(error) {
+                    console.error('Ошибка загрузки событий:', error);
+                    alert('Could not load tasks. Try later.');
+                }
+            },
+            eventDataTransform: function(rawEventData) {
+                let statusColors = {
+                    open: "#3788d8",
+                    in_progress: "#f0ad4e",
+                    done: "#5cb85c",
+                }
+
+                return {
+                    title: `Task ${rawEventData.id} [${rawEventData.status}]`,
+                    start: rawEventData.deadline,
+                    allDay: true,
+                    color: statusColors[rawEventData.status],
+                    extendedProps: {
+                        task_id: rawEventData.id
+                    }
+                };
+            },
+            eventClick: function(info) {
+                let taskId = info.event.extendedProps.task_id;
+                window.location.href = `/tasks/${taskId}`;
+            },
+        });
+
+        calendar.render();
+    });
 </script>
 {% endblock %}
