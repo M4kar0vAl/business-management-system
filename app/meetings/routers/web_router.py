@@ -1,12 +1,12 @@
 from contextlib import suppress
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from typing import Annotated
 
 import pytz
-from fastapi import APIRouter, Depends, Form, Query, Request, status
+from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi_users.exceptions import UserNotExists
-from pydantic import EmailStr, ValidationError
+from pydantic import BeforeValidator, EmailStr, ValidationError
 
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
@@ -19,6 +19,7 @@ from app.meetings.exceptions import (
 from app.meetings.models import Meeting
 from app.meetings.schemas import MeetingCreate, MeetingFilters
 from app.templates import templates
+from app.utils import empty_string_to_none
 
 router = APIRouter(prefix="/meetings")
 
@@ -32,13 +33,32 @@ MEETING_REMOVE_PARTICIPANT_ROUTE_NAME = "remove_meeting_participant"
 MEETING_MY_PAGE_ROUTE_NAME = "meetings:my_meetings_page"
 
 
+empty_string_to_none_before_validator = BeforeValidator(empty_string_to_none)
+
+
 @router.get("/", name=MEETING_LIST_PAGE_ROUTE_NAME)
 async def meetings_list_page(
-    filters: Annotated[MeetingFilters, Query()],
     user: Annotated[User, Depends(current_active_user)],
     meeting_service: MeetingServiceDep,
     request: Request,
+    start: Annotated[date | None, empty_string_to_none_before_validator] = None,
+    end: Annotated[date | None, empty_string_to_none_before_validator] = None,
 ):
+    try:
+        filters = MeetingFilters(start=start, end=end)
+    except ValidationError as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="meetings/list.html",
+            context={
+                "title": "Meetings",
+                "current_user": user,
+                "meetings": [],
+                "filters": MeetingFilters.model_construct(start=start, end=end),
+                "error": e,
+            },
+        )
+
     meetings = await meeting_service.get_meetings_list(filters)
 
     return templates.TemplateResponse(
@@ -55,11 +75,27 @@ async def meetings_list_page(
 
 @router.get("/my", name=MEETING_MY_PAGE_ROUTE_NAME)
 async def my_meetings_page(
-    filters: Annotated[MeetingFilters, Query()],
     user: Annotated[User, Depends(current_active_user)],
     meeting_service: MeetingServiceDep,
     request: Request,
+    start: Annotated[date | None, empty_string_to_none_before_validator] = None,
+    end: Annotated[date | None, empty_string_to_none_before_validator] = None,
 ):
+    try:
+        filters = MeetingFilters(start=start, end=end)
+    except ValidationError as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="meetings/list.html",
+            context={
+                "title": "My Meetings",
+                "current_user": user,
+                "meetings": [],
+                "filters": MeetingFilters.model_construct(start=start, end=end),
+                "error": e,
+            },
+        )
+
     meetings = await meeting_service.get_user_meetings(user, filters)
 
     return templates.TemplateResponse(

@@ -10,6 +10,7 @@ from pydantic import (
 
 from app.auth.schemas import UserRead
 from app.schemas import PeriodFilters
+from app.utils import empty_string_to_none
 
 
 class EvaluationsFilters(PeriodFilters):
@@ -18,9 +19,7 @@ class EvaluationsFilters(PeriodFilters):
     @field_validator("task_id", mode="before")
     @classmethod
     def empty_task_id_string_to_none(cls, v):
-        if v == "":
-            return None
-        return v
+        return empty_string_to_none(v)
 
 
 class EvaluationBase(BaseModel):

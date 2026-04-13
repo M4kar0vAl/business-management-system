@@ -3,6 +3,8 @@ from typing import Annotated, Self
 
 from pydantic import AfterValidator, BaseModel, field_validator, model_validator
 
+from app.utils import empty_string_to_none
+
 
 class BaseResponse(BaseModel):
     detail: str
@@ -37,9 +39,7 @@ class PeriodFilters(BaseModel):
     @field_validator("start", "end", mode="before")
     @classmethod
     def empty_date_strings_to_none(cls, v):
-        if v == "":
-            return None
-        return v
+        return empty_string_to_none(v)
 
 
 class CalendarFilters(BaseModel):

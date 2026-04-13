@@ -34,6 +34,9 @@
             <a href="{{ url_for('meetings:list_page') }}">Clear filters</a>
         </div>
     </form>
+    {% if error %}
+        <p style="color: red">{{ error }}</p>
+    {% endif %}
 
     {% for meeting in meetings %}
         {%  set is_meeting_author = meeting.created_by.id == current_user.id %}
