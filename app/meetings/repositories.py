@@ -83,7 +83,9 @@ class MeetingRepository:
         :return: list of meetings
         """
         filters_list = self._get_calendar_filters(filters)
-        stmt = select(Meeting).where(*filters_list)
+        stmt = (
+            select(Meeting).where(*filters_list).options(joinedload(Meeting.created_by))
+        )
 
         return list(await self.session.scalars(stmt))
 
