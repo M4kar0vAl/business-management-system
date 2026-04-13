@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, status
+from fastapi import APIRouter, Body, Depends, Query, status
 
 from app import responses
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
 from app.auth.types import UserIdType
+from app.schemas import TasksCalendarFilters
 from app.tasks.dependencies import TaskServiceDep, current_task
 from app.tasks.models import Task, TaskStatus
 from app.tasks.schemas import TaskCreate, TaskRead, TaskReadFull, TaskUpdate
@@ -17,6 +18,7 @@ TASK_CREATE_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:create"
 GET_ASSIGNED_TASKS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_assigned"
 GET_CREATED_TASKS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_created"
 GET_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:retrieve"
+GET_TASKS_CALENDAR_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:calendar"
 UPDATE_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:update"
 DELETE_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
 ASSIGN_USER_TO_TASK_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:assign_user"
@@ -76,6 +78,24 @@ async def get_tasks_created(
     Active manager or admin only.
     """
     return await task_service.get_tasks_created_by_user(user)
+
+
+@router.get(
+    "/calendar",
+    dependencies=[Depends(current_active_user)],
+    response_model=list[TaskRead],
+    name=GET_TASKS_CALENDAR_ROUTE_NAME,
+)
+async def get_tasks_calendar(
+    filters: Annotated[TasksCalendarFilters, Query()],
+    task_service: TaskServiceDep,
+):
+    """
+    Get all tasks for a calendar period.
+
+    Active users only.
+    """
+    return await task_service.get_calendar_tasks(filters)
 
 
 @router.get(
