@@ -13,11 +13,11 @@
 
     <h2>Members</h2>
     {% if is_admin %}
-        <a href="{{ url_for('teams:add_member_page', team_id=team.id) }}">Add member</a>
+        <a href="{{ url_for('teams:add_member_page', team_id=team.id) }}" style="font-size: larger; display: inline-flex; margin-bottom: 10px">Add member</a>
     {% endif %}
 
     {% for user in members %}
-        <div style="border: 2px solid gray; margin-bottom: 10px">
+        <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
             {% if user == current_user %}
                 <h3>You!</h3>
             {% endif %}
@@ -55,12 +55,12 @@
 
     <h2>Tasks</h2>
     {% if is_manager or is_admin %}
-        <a href="{{ url_for('tasks:create_page', team_id=team.id) }}">Create task</a>
+        <a href="{{ url_for('tasks:create_page', team_id=team.id) }}" style="font-size: larger; display: inline-flex; margin-bottom: 10px">Create task</a>
     {% endif %}
     {% for task in tasks %}
         {% set task_team_member = task.team_id == current_user.team_id %}
 
-        <div style="border: 2px solid gray; margin-bottom: 10px">
+        <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
             <div>Description: {{ task.description }}</div>
 
             {% if task.assignee_id == current_user.id and task_team_member %}
