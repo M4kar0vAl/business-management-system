@@ -7,14 +7,14 @@
 {% block content %}
     <h1>Teams</h1>
     {% if current_user.role == 'admin' or current_user.is_superuser %}
-        <a href="{{ url_for('teams:create_page') }}">Create team</a>
+        <a href="{{ url_for('teams:create_page') }}" style="font-size: larger; display: inline-flex; margin-bottom: 10px">Create team</a>
     {% endif %}
     {% for team in teams %}
-        <div style="border: 2px solid gray; margin-bottom: 10px; padding-inline: 10px">
+        <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
             <h2>{{ team.name }}</h2>
             <p>{{ team.description }}</p>
             {% if current_user.team_id == team.id %}
-                <a href="{{ url_for('teams:detail_page', team_id=team.id) }}">Details</a>
+                <a href="{{ url_for('teams:detail_page', team_id=team.id) }}" style="font-size: larger">Details</a>
             {% endif %}
         </div>
     {% endfor %}
