@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from app.auth.user_manager import UserManager
+from app.schemas import TasksCalendarFilters
 from app.tasks.exceptions import (
     TaskAlreadyAssignedError,
     TaskDoesNotExistError,
@@ -80,6 +81,15 @@ class TaskService:
         :return: list of tasks
         """
         return await self.task_repo.get_tasks_created_by_user(user)
+
+    async def get_calendar_tasks(self, filters: TasksCalendarFilters) -> list[Task]:
+        """
+        Get tasks to display in calendar.
+
+        :param filters: filters to apply, including calendar period.
+        :return: list of tasks
+        """
+        return await self.task_repo.get_calendar_tasks(filters)
 
     async def assign_user_to_task(self, task: Task, assignee_id: UserIdType) -> None:
         """
