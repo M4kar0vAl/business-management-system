@@ -3,7 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from app.auth.schemas import UserRead
-from app.schemas import PeriodFilters
+from app.schemas import CalendarFilters, PeriodFilters
 
 
 class MeetingFilters(PeriodFilters):
@@ -28,3 +28,7 @@ class MeetingRead(MeetingBase):
 
 class MeetingReadFull(MeetingRead):
     participants: list[UserRead]
+
+
+class MeetingsCalendarFilters(CalendarFilters):
+    pass
