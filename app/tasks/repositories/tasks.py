@@ -1,8 +1,11 @@
+from datetime import UTC
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.auth.models import User
+from app.schemas import TasksCalendarFilters
 from app.tasks.models import Task
 from app.tasks.schemas import TaskCreate, TaskUpdate
 from app.teams.models import Team
@@ -82,6 +85,18 @@ class TaskRepository:
         )
         return list(await self.session.scalars(stmt))
 
+    async def get_calendar_tasks(self, filters: TasksCalendarFilters) -> list[Task]:
+        """
+        Get tasks to display in calendar.
+
+        :param filters: filters to apply, including calendar period.
+        :return: list of tasks
+        """
+        filters_list = self._get_calendar_filters(filters)
+        stmt = select(Task).where(*filters_list)
+
+        return list(await self.session.scalars(stmt))
+
     @classmethod
     async def update(cls, task: Task, update_data: TaskUpdate) -> Task:
         """
@@ -115,3 +130,18 @@ class TaskRepository:
         :return: None
         """
         task.assignee = user
+
+    @classmethod
+    def _get_calendar_filters(cls, filters: TasksCalendarFilters):
+        filters_list = [
+            Task.deadline >= filters.start.astimezone(UTC),
+            Task.deadline <= filters.end.astimezone(UTC),
+        ]
+
+        if (team_id := filters.team_id) is not None:
+            filters_list.append(Task.team_id == team_id)
+
+        if (assignee_id := filters.assignee_id) is not None:
+            filters_list.append(Task.assignee_id == assignee_id)
+
+        return filters_list
