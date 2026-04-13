@@ -1,8 +1,10 @@
 from contextlib import suppress
+from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, Query, Request, status
+from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import RedirectResponse
+from pydantic import BeforeValidator, Field, ValidationError
 
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
@@ -17,6 +19,7 @@ from app.tasks.models import Evaluation, Task, TaskStatus
 from app.tasks.routers.web.tasks import DETAIL_TASK_PAGE_ROUTE_NAME
 from app.tasks.schemas import EvaluationCreate, EvaluationsFilters, EvaluationUpdate
 from app.templates import templates
+from app.utils import empty_string_to_none
 
 router = APIRouter(prefix="/{task_id}/evaluations")
 user_evaluations_router = APIRouter(prefix="/my_evaluations")
@@ -25,6 +28,9 @@ EVALUATION_CREATE_ROUTE_NAME = "create_evaluation"
 EVALUATION_UPDATE_ROUTE_NAME = "update_evaluation"
 EVALUATION_DELETE_ROUTE_NAME = "delete_evaluation"
 EVALUATIONS_MY_PAGE_ROUTE_NAME = "my_evaluations"
+
+
+empty_string_to_none_before_validator = BeforeValidator(empty_string_to_none)
 
 
 @router.post("/", name=EVALUATION_CREATE_ROUTE_NAME)
@@ -107,13 +113,37 @@ async def delete_evaluation(
 
 @user_evaluations_router.get("/", name=EVALUATIONS_MY_PAGE_ROUTE_NAME)
 async def user_evaluations_page(
-    filters: Annotated[EvaluationsFilters, Query()],
     user: Annotated[User, Depends(current_active_user)],
     evaluation_service: EvaluationServiceDep,
     task_service: TaskServiceDep,
     request: Request,
+    start: Annotated[date | None, empty_string_to_none_before_validator] = None,
+    end: Annotated[date | None, empty_string_to_none_before_validator] = None,
+    task_id: Annotated[
+        int | None, Field(ge=1), empty_string_to_none_before_validator
+    ] = None,
 ):
     assigned_tasks = await task_service.get_tasks_assigned_to_user(user)
+
+    try:
+        filters = EvaluationsFilters(start=start, end=end, task_id=task_id)
+    except ValidationError as e:
+        return templates.TemplateResponse(
+            request=request,
+            name="tasks/my_evaluations.html",
+            context={
+                "title": "Evaluations of my tasks",
+                "current_user": user,
+                "filters": EvaluationsFilters.model_construct(
+                    start=start, end=end, task_id=task_id
+                ),
+                "evaluations": [],
+                "avg_evaluation": 0.0,
+                "assigned_tasks": assigned_tasks,
+                "error": e,
+            },
+        )
+
     evaluations = await evaluation_service.get_evaluations_of_user_tasks(user, filters)
     avg_evaluation = await evaluation_service.get_avg_evaluation_of_user_tasks(
         user, filters
