@@ -12,7 +12,7 @@
 
     <h1>Task {{ task.id }}</h1>
 
-    <div style="border: 2px solid gray; margin-bottom: 10px">
+    <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
         <div>Description: {{ task.description }}</div>
 
         {% if is_assignee and task_team_member %}
@@ -55,7 +55,7 @@
 
         {% if (is_manager or is_admin) and task_team_member and task.author_id == current_user.id %}
             <p>
-                <a href="{{ url_for('tasks:edit_page', task_id=task.id) }}">Edit</a>
+                <a href="{{ url_for('tasks:edit_page', task_id=task.id) }}" style="font-size: larger">Edit</a>
             </p>
             <form action="{{ url_for('delete_task', team_id=task.team_id, task_id=task.id) }}" method="post">
                 <button type="submit">Delete</button>
