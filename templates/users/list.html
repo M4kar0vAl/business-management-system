@@ -7,7 +7,7 @@
 {% block content %}
     <h1>Users</h1>
     {% for user in users %}
-        <div style="border: 2px solid gray; margin-bottom: 10px">
+        <div style="border: 2px solid gray; margin-bottom: 10px; padding: 10px; display: flex; flex-direction: column; row-gap: 10px">
             {% if user == current_user %}
                 <h2>You!</h2>
             {% endif %}
