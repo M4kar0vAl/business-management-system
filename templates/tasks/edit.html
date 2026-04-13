@@ -10,7 +10,7 @@
     {% set task_team_member = task.team_id == current_user.team_id %}
 
     <h1>Edit task {{ task.id }}</h1>
-        <form action="{{ url_for('update_task', task_id=task.id) }}" method="post" id="task_update_form">
+        <form action="{{ url_for('update_task', task_id=task.id) }}" method="post" id="task_update_form" style="display: flex; flex-direction: column; row-gap: 10px; align-items: start">
             <div>
                 <label for="task_description">Description:</label>
                 <textarea id="task_description" name="description">{{ update_data.description if update_data is defined else task.description}}</textarea>
