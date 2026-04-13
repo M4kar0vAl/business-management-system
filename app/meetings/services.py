@@ -10,7 +10,7 @@ from app.meetings.exceptions import (
 )
 from app.meetings.models import Meeting
 from app.meetings.repositories import MeetingRepository
-from app.meetings.schemas import MeetingCreate, MeetingFilters
+from app.meetings.schemas import MeetingCreate, MeetingFilters, MeetingsCalendarFilters
 from app.uow import UnitOfWork
 
 
@@ -72,6 +72,17 @@ class MeetingService:
         :return: list of user meetings
         """
         return await self.meetings_repo.get_user_meetings(user, filters)
+
+    async def get_meetings_calendar(
+        self, filters: MeetingsCalendarFilters
+    ) -> list[Meeting]:
+        """
+        Get meetings to display in calendar.
+
+        :param filters: filters to apply, including calendar period.
+        :return: list of meetings
+        """
+        return await self.meetings_repo.get_meetings_calendar(filters)
 
     async def delete_meeting(self, meeting: Meeting) -> None:
         """
