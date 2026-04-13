@@ -8,19 +8,21 @@
 </head>
 <body>
     {% if current_user %}
-        <p><a href="{{ url_for('profile') }}">Profile</a></p>
+    <div style="display: flex; column-gap: 20px; align-items: center; justify-content: end; font-size: larger">
+        <a href="{{ url_for('profile') }}">Profile</a>
         <form action="{{ url_for('logout') }}" method="post">
             <button type="submit">Logout</button>
         </form>
+    </div>
     {% else %}
-        <div>
+        <div style="display: flex; column-gap: 20px; justify-content: end">
             <a href="{{ url_for('register') }}">Register</a>
             <a href="{{ url_for('login') }}">Login</a>
         </div>
     {% endif %}
 
     <nav>
-        <ul>
+        <ul style="display: flex; list-style: none; column-gap: 20px; padding: 0; justify-content: center; font-size: larger">
             <li><a href="{{ url_for('home') }}">Home</a></li>
             {% if current_user %}
 
