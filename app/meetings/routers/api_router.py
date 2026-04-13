@@ -13,6 +13,7 @@ from app.meetings.schemas import (
     MeetingFilters,
     MeetingRead,
     MeetingReadFull,
+    MeetingsCalendarFilters,
 )
 
 router = APIRouter(
@@ -29,6 +30,7 @@ meeting_detail_router = APIRouter(
 ROUTE_NAME_PREFIX = "meetings"
 GET_MEETINGS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:list"
 GET_USER_MEETINGS_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:get_of_user"
+GET_MEETINGS_CALENDAR_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:calendar"
 GET_MEETING_BY_ID_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:retrieve"
 CREATE_MEETING_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:create"
 DELETE_MEETING_ROUTE_NAME = f"{ROUTE_NAME_PREFIX}:delete"
@@ -85,6 +87,24 @@ async def get_user_meetings(
     Active users only.
     """
     return await meetings_service.get_user_meetings(user, filters)
+
+
+@router.get(
+    "/calendar",
+    dependencies=[Depends(current_active_user)],
+    response_model=list[MeetingRead],
+    name=GET_MEETINGS_CALENDAR_ROUTE_NAME,
+)
+async def get_meetings_calendar(
+    filters: Annotated[MeetingsCalendarFilters, Query()],
+    meeting_service: MeetingServiceDep,
+):
+    """
+    Get all meetings for a calendar period.
+
+    Active users only.
+    """
+    return await meeting_service.get_meetings_calendar(filters)
 
 
 @meeting_detail_router.get(
