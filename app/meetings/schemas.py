@@ -31,4 +31,4 @@ class MeetingReadFull(MeetingRead):
 
 
 class MeetingsCalendarFilters(CalendarFilters):
-    pass
+    user_id: int | None = None

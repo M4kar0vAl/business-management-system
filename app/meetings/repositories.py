@@ -176,7 +176,12 @@ class MeetingRepository:
 
     @classmethod
     def _get_calendar_filters(cls, filters: MeetingsCalendarFilters):
-        return [
+        filters_list = [
             Meeting.start_time < filters.end.astimezone(UTC),
             Meeting.end_time > filters.start.astimezone(UTC),
         ]
+
+        if (user_id := filters.user_id) is not None:
+            filters_list.append(Meeting.participants.any(User.id == user_id))
+
+        return filters_list
