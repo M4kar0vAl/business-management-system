@@ -4,6 +4,7 @@ from typing import Annotated
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.auth.schemas import UserRead
+from app.schemas import CalendarFilters
 from app.tasks.models import TaskStatus
 
 
@@ -55,3 +56,8 @@ class TaskUpdate(BaseModel):
             raise ValueError("Deadline must be in the future")  # noqa: TRY003
 
         return deadline
+
+
+class TasksCalendarFilters(CalendarFilters):
+    team_id: int | None = None
+    assignee_id: int | None = None

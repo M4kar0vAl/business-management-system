@@ -45,8 +45,3 @@ class PeriodFilters(BaseModel):
 class CalendarFilters(BaseModel):
     start: datetime
     end: datetime
-
-
-class TasksCalendarFilters(CalendarFilters):
-    team_id: int | None = None
-    assignee_id: int | None = None

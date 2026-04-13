@@ -6,10 +6,10 @@ from app import responses
 from app.auth.fastapi_users_instance import current_active_user, get_current_manager
 from app.auth.models import User
 from app.auth.types import UserIdType
-from app.schemas import TasksCalendarFilters
 from app.tasks.dependencies import TaskServiceDep, current_task
 from app.tasks.models import Task, TaskStatus
 from app.tasks.schemas import TaskCreate, TaskRead, TaskReadFull, TaskUpdate
+from app.tasks.schemas.tasks import TasksCalendarFilters
 
 router = APIRouter()
 

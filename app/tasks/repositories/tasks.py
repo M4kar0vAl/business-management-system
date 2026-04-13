@@ -5,9 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from app.auth.models import User
-from app.schemas import TasksCalendarFilters
 from app.tasks.models import Task
 from app.tasks.schemas import TaskCreate, TaskUpdate
+from app.tasks.schemas.tasks import TasksCalendarFilters
 from app.teams.models import Team
 
 

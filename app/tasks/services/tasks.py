@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 from app.auth.user_manager import UserManager
-from app.schemas import TasksCalendarFilters
 from app.tasks.exceptions import (
     TaskAlreadyAssignedError,
     TaskDoesNotExistError,
@@ -9,6 +8,7 @@ from app.tasks.exceptions import (
 )
 from app.tasks.repositories import TaskRepository
 from app.tasks.schemas import TaskCreate, TaskUpdate
+from app.tasks.schemas.tasks import TasksCalendarFilters
 from app.teams.exceptions import TeamDoesNotExistError, UserDoesNotBelongToTeamError
 from app.teams.repositories import TeamRepository
 from app.uow import UnitOfWork
