@@ -53,7 +53,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Run tests
-        run: uv run pytest tests
+        run: uv run pytest tests -x
         env:
           BMS__DB__HOST: localhost
           BMS__DB__PORT: 5432
