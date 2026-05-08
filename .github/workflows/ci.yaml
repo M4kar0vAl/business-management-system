@@ -14,6 +14,21 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_pass
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v6
 
@@ -39,3 +54,9 @@ jobs:
 
       - name: Run tests
         run: uv run pytest tests
+        env:
+          BMS__DB__HOST: localhost
+          BMS__DB__PORT: 5432
+          BMS__DB__USER: test_user
+          BMS__DB__PASSWORD: test_pass
+          BMS__DB__NAME: test_db
