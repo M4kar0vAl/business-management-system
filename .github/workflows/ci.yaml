@@ -58,5 +58,5 @@ jobs:
           BMS__DB__HOST: localhost
           BMS__DB__PORT: 5432
           BMS__DB__USER: test_user
-          BMS__DB__PASSWORD: test_pass
+          BMS__DB__PASS: test_pass
           BMS__DB__NAME: test_db
