@@ -28,5 +28,5 @@ class PasswordConfig(BaseModel):
 
 class UserConfig(BaseModel):
     ADMIN_EMAIL: EmailStr = "admin@example.com"
-    ADMIN_PASSWORD: SecretStr = "Pass!1234"
+    ADMIN_PASSWORD: SecretStr = SecretStr("Pass!1234")
     PASSWORD: PasswordConfig = PasswordConfig()
