@@ -18,11 +18,11 @@ jobs:
       postgres:
         image: postgres:18
         env:
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_pass
-          POSTGRES_DB: test_db
+          POSTGRES_USER: ${{ vars.TEST_DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASS }}
+          POSTGRES_DB: ${{ vars.TEST_DB_NAME }}
         ports:
-          - 5432:5432
+          - ${{ vars.TEST_DB_PORT }}:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -40,7 +40,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
-          version: "0.11.11"
+          version: ${{ vars.UV_VERSION }}
           enable-cache: true
 
       - name: Install the project
@@ -56,7 +56,7 @@ jobs:
         run: uv run pytest tests -x
         env:
           BMS__DB__HOST: localhost
-          BMS__DB__PORT: 5432
-          BMS__DB__USER: test_user
-          BMS__DB__PASS: test_pass
-          BMS__DB__NAME: test_db
+          BMS__DB__PORT: ${{ vars.TEST_DB_PORT }}
+          BMS__DB__USER: ${{ vars.TEST_DB_USER }}
+          BMS__DB__PASS: ${{ secrets.TEST_DB_PASS }}
+          BMS__DB__NAME: ${{ vars.TEST_DB_NAME }}
